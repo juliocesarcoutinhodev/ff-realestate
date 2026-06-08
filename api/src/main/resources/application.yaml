@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: ff-realestate-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import: "optional:file:.env.local[.properties]"
