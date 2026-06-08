@@ -1,7 +1,5 @@
-package br.com.fabriciofaceroli.shared.security;
+package br.com.fabriciofaceroli.infrastructure.security;
 
-import br.com.fabriciofaceroli.shared.config.CookieProperties;
-import br.com.fabriciofaceroli.shared.config.JwtProperties;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,5 @@
-package br.com.fabriciofaceroli.shared.config;
+package br.com.fabriciofaceroli.infrastructure.security;
 
-import br.com.fabriciofaceroli.shared.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

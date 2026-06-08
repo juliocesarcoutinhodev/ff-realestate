@@ -1,4 +1,4 @@
-package br.com.fabriciofaceroli.shared.security;
+package br.com.fabriciofaceroli.infrastructure.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

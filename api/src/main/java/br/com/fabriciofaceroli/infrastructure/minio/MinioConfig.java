@@ -1,6 +1,5 @@
 package br.com.fabriciofaceroli.infrastructure.minio;
 
-import br.com.fabriciofaceroli.shared.config.MinioProperties;
 import io.minio.MinioClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

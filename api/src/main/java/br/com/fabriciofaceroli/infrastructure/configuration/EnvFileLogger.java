@@ -1,4 +1,4 @@
-package br.com.fabriciofaceroli.shared.config;
+package br.com.fabriciofaceroli.infrastructure.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

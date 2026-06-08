@@ -1,4 +1,4 @@
-package br.com.fabriciofaceroli.shared.config;
+package br.com.fabriciofaceroli.infrastructure.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

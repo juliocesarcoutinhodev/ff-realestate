@@ -1,4 +1,4 @@
-package br.com.fabriciofaceroli.shared.config;
+package br.com.fabriciofaceroli.infrastructure.security;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;

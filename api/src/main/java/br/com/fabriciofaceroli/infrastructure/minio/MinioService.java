@@ -1,6 +1,5 @@
 package br.com.fabriciofaceroli.infrastructure.minio;
 
-import br.com.fabriciofaceroli.shared.config.MinioProperties;
 import br.com.fabriciofaceroli.shared.exception.BusinessException;
 import br.com.fabriciofaceroli.shared.exception.ResourceNotFoundException;
 import io.minio.BucketExistsArgs;

@@ -1,6 +1,5 @@
-package br.com.fabriciofaceroli.shared.security;
+package br.com.fabriciofaceroli.infrastructure.security;
 
-import br.com.fabriciofaceroli.shared.config.JwtProperties;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;

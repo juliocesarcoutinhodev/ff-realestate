@@ -1,4 +1,4 @@
-package br.com.fabriciofaceroli.shared.config;
+package br.com.fabriciofaceroli.infrastructure.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
