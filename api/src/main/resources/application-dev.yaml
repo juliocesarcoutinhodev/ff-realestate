@@ -40,4 +40,4 @@ logging:
 
 app:
   cookie:
-    secure: false
+    secure: true

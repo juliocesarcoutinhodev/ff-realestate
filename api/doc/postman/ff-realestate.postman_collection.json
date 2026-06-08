@@ -95,7 +95,7 @@
             },
             "description": "Autentica o usuário e retorna o access token. O script salva automaticamente o token na variável `accessToken` da coleção."
           },
-          "event": [
+            "event": [
             {
               "listen": "test",
               "script": {
@@ -104,13 +104,14 @@
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
                   "",
                   "if (pm.response.code === 200) {",
-                  "    const json = pm.response.json();",
-                  "    const token = json?.data?.accessToken;",
+                  "    const setCookie = pm.response.headers.get('Set-Cookie') || '';",
+                  "    const match = setCookie.match(/accessToken=([^;]+)/);",
+                  "    const token = match && match[1];",
                   "    if (token) {",
                   "        pm.collectionVariables.set('accessToken', token);",
                   "        console.log('✅ accessToken salvo na coleção.');",
                   "    } else {",
-                  "        console.warn('⚠️  accessToken não encontrado na resposta.');",
+                  "        console.warn('⚠️  accessToken não encontrado no Set-Cookie.');",
                   "    }",
                   "}"
                 ]
@@ -127,7 +128,7 @@
                 "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
               },
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"success\": true,\n    \"message\": \"Login realizado com sucesso.\",\n    \"data\": {\n        \"accessToken\": \"eyJhbGciOiJIUzI1NiJ9...\",\n        \"tokenType\": \"Bearer\"\n    }\n}"
+              "body": "{\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"Fabrício Faceroli\",\n    \"email\": \"fabricio@email.com\",\n    \"role\": \"ADMIN\"\n}"
             },
             {
               "name": "401 Unauthorized",
@@ -138,7 +139,112 @@
                 "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
               },
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Credenciais inválidas.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"E-mail ou senha inválidos.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Usuário inativo.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register Admin User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"{{newAdminName}}\",\n    \"email\": \"{{newAdminEmail}}\",\n    \"password\": \"{{newAdminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Registra um novo usuário administrador. Requer autenticação com usuário ADMIN; execute o Login antes para preencher `accessToken`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.id).to.be.a('string');",
+                  "    pm.expect(json.name).to.equal(pm.variables.get('newAdminName'));",
+                  "    pm.expect(json.email).to.equal(pm.variables.get('newAdminEmail'));",
+                  "    pm.expect(json.role).to.equal('ADMIN');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"Fabrício Faceroli\",\n    \"email\": \"fabricio@email.com\",\n    \"role\": \"ADMIN\"\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "status": "Bad Request",
+              "code": 400,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"A senha deve ter no mínimo 8 caracteres, ao menos 1 letra maiúscula e 1 número.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "409 Conflict",
+              "status": "Conflict",
+              "code": 409,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"E-mail já cadastrado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
         },

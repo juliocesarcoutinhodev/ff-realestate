@@ -117,6 +117,7 @@ br.com.fabriciofaceroli
 |---|---|---|---|
 | GET | `/api/v1/health` | Não | Health check |
 | POST | `/api/v1/auth/login` | Não | Autenticação |
+| POST | `/api/v1/auth/register` | Sim | Criação de novo admin |
 | GET | `/api/v1/properties` | Não | Lista imóveis |
 | GET | `/api/v1/categories` | Não | Lista categorias |
 | GET | `/api/v1/testimonials` | Não | Lista depoimentos |
@@ -144,7 +145,12 @@ Importe os arquivos em `doc/postman/`:
 2. `local.postman_environment.json` — environment local
 3. `prod.postman_environment.json` — template de produção
 
-Selecione o environment **Local**, execute **Auth › Login** e o token é salvo automaticamente para todos os demais requests.
+Selecione o environment **Local**, execute **Auth › Login** e o token é salvo automaticamente a partir do `Set-Cookie` para todos os demais requests.
+
+Fluxo recomendado:
+
+1. `Auth › Login` autentica e grava o JWT em cookie HttpOnly
+2. `Auth › Register Admin User` usa o token salvo na collection para criar novos admins
 
 ---
 
