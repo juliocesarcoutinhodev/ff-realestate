@@ -1,0 +1,481 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "FF Realestate API",
+    "description": "Coleção principal da FF Realestate API.\n\n**Autenticação**\nFaça o request *Auth › Login* para receber o token. O script de teste salva automaticamente o `accessToken` nas variáveis da coleção — todos os demais requests herdam o Bearer token.\n\n**Environments**\n- `local` → `http://localhost:8080`\n- `prod`  → URL de produção",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": "",
+      "description": "JWT de acesso. Estado de sessão — preenchido automaticamente pelo script do Login e limpo pelo Logout. Não pertence ao environment porque é idêntico em todos os ambientes.",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "description": "Endpoints operacionais — não requerem autenticação.",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            },
+            "description": "Verifica se a API está em execução. Não requer autenticação."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status é UP', () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.equal('UP');",
+                  "    pm.expect(json.timestamp).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/health" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": \"UP\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Autenticação e gerenciamento de sessão.",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{adminEmail}}\",\n    \"password\": \"{{adminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Autentica o usuário e retorna o access token. O script salva automaticamente o token na variável `accessToken` da coleção."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    const token = json?.data?.accessToken;",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('accessToken', token);",
+                  "        console.log('✅ accessToken salvo na coleção.');",
+                  "    } else {",
+                  "        console.warn('⚠️  accessToken não encontrado na resposta.');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Login realizado com sucesso.\",\n    \"data\": {\n        \"accessToken\": \"eyJhbGciOiJIUzI1NiJ9...\",\n        \"tokenType\": \"Bearer\"\n    }\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Credenciais inválidas.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Invalida o refresh token (cookie HttpOnly) e encerra a sessão."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('accessToken', '');",
+                  "    console.log('✅ accessToken removido da coleção.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/logout" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Logout realizado com sucesso.\",\n    \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Emite um novo access token usando o refresh token no cookie HttpOnly."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    const token = json?.data?.accessToken;",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('accessToken', token);",
+                  "        console.log('✅ accessToken renovado.');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "description": "Gerenciamento de imóveis.",
+      "item": [
+        {
+          "name": "List Properties",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties?page=0&size=10&sort=createdAt,desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sort", "value": "createdAt,desc" }
+              ]
+            },
+            "description": "Lista imóveis paginados. Público."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Property by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Retorna um imóvel pelo ID. Público."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Property",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Casa no Jardim América\",\n    \"description\": \"Casa com 3 quartos, 2 banheiros e 1 suíte.\",\n    \"price\": 850000.00,\n    \"area\": 180.5,\n    \"bedrooms\": 3,\n    \"bathrooms\": 2,\n    \"categoryId\": 1,\n    \"address\": {\n        \"street\": \"Rua das Flores\",\n        \"number\": \"123\",\n        \"city\": \"São Paulo\",\n        \"state\": \"SP\",\n        \"zipCode\": \"01310-100\"\n    }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties"]
+            },
+            "description": "Cria um novo imóvel. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Property",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Casa no Jardim América — Atualizada\",\n    \"price\": 900000.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Atualiza um imóvel. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Property",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Remove um imóvel. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "description": "Gerenciamento de categorias de imóveis.",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "Lista todas as categorias. Público."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Residencial\",\n    \"description\": \"Imóveis residenciais para moradia.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "Cria uma nova categoria. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Remove uma categoria. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Photos",
+      "description": "Upload e remoção de fotos de imóveis via MinIO.",
+      "item": [
+        {
+          "name": "Upload Photo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Arquivo de imagem (JPEG, PNG, WebP)"
+                },
+                {
+                  "key": "propertyId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/photos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "photos"]
+            },
+            "description": "Faz upload de uma foto para o MinIO e associa ao imóvel. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Photo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/photos/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "photos", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Remove uma foto do MinIO e do banco. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Testimonials",
+      "description": "Gerenciamento de depoimentos de clientes.",
+      "item": [
+        {
+          "name": "List Testimonials",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"]
+            },
+            "description": "Lista todos os depoimentos aprovados. Público."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Testimonial",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorName\": \"João Silva\",\n    \"content\": \"Excelente atendimento! Encontrei minha casa dos sonhos.\",\n    \"rating\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"]
+            },
+            "description": "Cria um novo depoimento. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Testimonial",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Remove um depoimento. Requer autenticação (ADMIN)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
