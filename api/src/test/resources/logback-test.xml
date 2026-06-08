@@ -1,0 +1,17 @@
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Silencia logs da aplicação durante testes unitários -->
+    <logger name="br.com.fabriciofaceroli" level="OFF" />
+
+    <!-- Mantém WARN do framework para erros reais de infraestrutura de testes -->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</configuration>

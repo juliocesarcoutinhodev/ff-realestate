@@ -37,3 +37,7 @@ logging:
   level:
     root: INFO
     br.com.fabriciofaceroli: DEBUG
+
+app:
+  cookie:
+    secure: false
