@@ -9,12 +9,14 @@ import br.com.fabriciofaceroli.auth.application.port.out.GenerateRefreshTokenPor
 import br.com.fabriciofaceroli.auth.application.port.out.SaveRefreshTokenPort;
 import br.com.fabriciofaceroli.shared.exception.ForbiddenException;
 import br.com.fabriciofaceroli.shared.exception.UnauthorizedException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class LoginUserUseCase implements LoginUserPort {
 
     private static final String INVALID_CREDENTIALS_MESSAGE = "E-mail ou senha inválidos.";
@@ -24,18 +26,6 @@ public class LoginUserUseCase implements LoginUserPort {
     private final GenerateRefreshTokenPort generateRefreshTokenPort;
     private final SaveRefreshTokenPort saveRefreshTokenPort;
     private final PasswordEncoder passwordEncoder;
-
-    public LoginUserUseCase(FindUserCredentialsByEmailPort findUserCredentialsByEmailPort,
-                            GenerateAuthTokenPort generateAuthTokenPort,
-                            GenerateRefreshTokenPort generateRefreshTokenPort,
-                            SaveRefreshTokenPort saveRefreshTokenPort,
-                            PasswordEncoder passwordEncoder) {
-        this.findUserCredentialsByEmailPort = findUserCredentialsByEmailPort;
-        this.generateAuthTokenPort = generateAuthTokenPort;
-        this.generateRefreshTokenPort = generateRefreshTokenPort;
-        this.saveRefreshTokenPort = saveRefreshTokenPort;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public LoginResult login(LoginCommand command) {
