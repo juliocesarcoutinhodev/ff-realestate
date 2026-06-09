@@ -93,9 +93,9 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "login"]
             },
-            "description": "Autentica o usuário e retorna o access token. O script salva automaticamente o token na variável `accessToken` da coleção."
+            "description": "Autentica o usuário e emite dois cookies HttpOnly: `accessToken` (15 min, path `/`) e `refresh_token` (7 dias, path `/api/v1/auth`). O script salva o `accessToken` nas variáveis da coleção para uso nos demais requests."
           },
-            "event": [
+          "event": [
             {
               "listen": "test",
               "script": {
@@ -104,14 +104,17 @@
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
                   "",
                   "if (pm.response.code === 200) {",
-                  "    const setCookie = pm.response.headers.get('Set-Cookie') || '';",
-                  "    const match = setCookie.match(/accessToken=([^;]+)/);",
-                  "    const token = match && match[1];",
+                  "    const cookies = pm.response.headers.all()",
+                  "        .filter(h => h.key.toLowerCase() === 'set-cookie')",
+                  "        .map(h => h.value);",
+                  "",
+                  "    const accessCookie = cookies.find(c => c.startsWith('accessToken='));",
+                  "    const token = accessCookie && accessCookie.split(';')[0].split('=')[1];",
                   "    if (token) {",
                   "        pm.collectionVariables.set('accessToken', token);",
-                  "        console.log('✅ accessToken salvo na coleção.');",
+                  "        console.log('accessToken salvo na coleção.');",
                   "    } else {",
-                  "        console.warn('⚠️  accessToken não encontrado no Set-Cookie.');",
+                  "        console.warn('accessToken não encontrado nos cookies.');",
                   "    }",
                   "}"
                 ]
@@ -127,8 +130,12 @@
                 "method": "POST",
                 "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"Fabrício Faceroli\",\n    \"email\": \"fabricio@email.com\",\n    \"role\": \"ADMIN\"\n}"
+              "header": [
+                { "key": "Content-Type", "value": "application/json" },
+                { "key": "Set-Cookie", "value": "accessToken=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900" },
+                { "key": "Set-Cookie", "value": "refresh_token=<jwt>; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=604800" }
+              ],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Login realizado com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
             },
             {
               "name": "401 Unauthorized",
@@ -150,7 +157,75 @@
                 "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
               },
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Usuário inativo.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+              "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Usuário inativo, contate o administrador.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Renova a sessão usando o cookie HttpOnly `refresh_token` (path `/api/v1/auth`). Aplica rotation strategy: revoga o token atual, emite novo par `accessToken` (15 min) + `refresh_token` (7 dias). O script salva o novo `accessToken` na variável da coleção. Não requer Authorization header."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const cookies = pm.response.headers.all()",
+                  "        .filter(h => h.key.toLowerCase() === 'set-cookie')",
+                  "        .map(h => h.value);",
+                  "",
+                  "    const accessCookie = cookies.find(c => c.startsWith('accessToken='));",
+                  "    const token = accessCookie && accessCookie.split(';')[0].split('=')[1];",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('accessToken', token);",
+                  "        console.log('accessToken renovado e salvo na coleção.');",
+                  "    } else {",
+                  "        console.warn('accessToken não encontrado nos cookies de resposta.');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh" }
+              },
+              "header": [
+                { "key": "Content-Type", "value": "application/json" },
+                { "key": "Set-Cookie", "value": "accessToken=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900" },
+                { "key": "Set-Cookie", "value": "refresh_token=<jwt>; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=604800" }
+              ],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Sessão renovada com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Sessão expirada. Faça login novamente.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
         },
@@ -181,10 +256,11 @@
                   "",
                   "if (pm.response.code === 201) {",
                   "    const json = pm.response.json();",
-                  "    pm.expect(json.id).to.be.a('string');",
-                  "    pm.expect(json.name).to.equal(pm.variables.get('newAdminName'));",
-                  "    pm.expect(json.email).to.equal(pm.variables.get('newAdminEmail'));",
-                  "    pm.expect(json.role).to.equal('ADMIN');",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.id).to.be.a('string');",
+                  "    pm.expect(json.data.name).to.equal(pm.variables.get('newAdminName'));",
+                  "    pm.expect(json.data.email).to.equal(pm.variables.get('newAdminEmail'));",
+                  "    pm.expect(json.data.role).to.equal('ADMIN');",
                   "}"
                 ]
               }
@@ -200,7 +276,7 @@
                 "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
               },
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"Fabrício Faceroli\",\n    \"email\": \"fabricio@email.com\",\n    \"role\": \"ADMIN\"\n}"
+              "body": "{\n    \"success\": true,\n    \"message\": \"Usuário registrado com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
             },
             {
               "name": "400 Bad Request",
@@ -270,7 +346,7 @@
                   "",
                   "if (pm.response.code === 200) {",
                   "    pm.collectionVariables.set('accessToken', '');",
-                  "    console.log('✅ accessToken removido da coleção.');",
+                  "    console.log('accessToken removido da coleção.');",
                   "}"
                 ]
               }
@@ -289,41 +365,6 @@
               "body": "{\n    \"success\": true,\n    \"message\": \"Logout realizado com sucesso.\",\n    \"data\": null\n}"
             }
           ]
-        },
-        {
-          "name": "Refresh Token",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "refresh"]
-            },
-            "description": "Emite um novo access token usando o refresh token no cookie HttpOnly."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "",
-                  "if (pm.response.code === 200) {",
-                  "    const json = pm.response.json();",
-                  "    const token = json?.data?.accessToken;",
-                  "    if (token) {",
-                  "        pm.collectionVariables.set('accessToken', token);",
-                  "        console.log('✅ accessToken renovado.');",
-                  "    }",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "response": []
         }
       ]
     },

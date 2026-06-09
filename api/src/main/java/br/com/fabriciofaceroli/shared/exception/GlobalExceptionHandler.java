@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.of(409, "Conflict", "E-mail já cadastrado."));
+                .body(ErrorResponse.of(409, "Conflict", "Operação viola restrições de integridade dos dados."));
     }
 
     @ExceptionHandler(BusinessException.class)

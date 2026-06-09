@@ -2,69 +2,127 @@ package br.com.fabriciofaceroli.auth.application.usecase;
 
 import br.com.fabriciofaceroli.auth.application.port.in.LoginCommand;
 import br.com.fabriciofaceroli.auth.application.port.out.GenerateAuthTokenPort;
-import br.com.fabriciofaceroli.auth.domain.model.User;
+import br.com.fabriciofaceroli.auth.application.port.out.GenerateRefreshTokenPort;
+import br.com.fabriciofaceroli.auth.application.port.out.RefreshTokenData;
+import br.com.fabriciofaceroli.auth.application.port.out.SaveRefreshTokenPort;
 import br.com.fabriciofaceroli.auth.domain.model.UserCredentials;
 import br.com.fabriciofaceroli.auth.domain.model.UserRole;
 import br.com.fabriciofaceroli.shared.exception.ForbiddenException;
 import br.com.fabriciofaceroli.shared.exception.UnauthorizedException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@ExtendWith(MockitoExtension.class)
 class LoginUserUseCaseTest {
 
     private static final String INVALID_CREDENTIALS_MESSAGE = "E-mail ou senha inválidos.";
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    private LoginUserUseCase useCase(boolean active,
+                                     GenerateAuthTokenPort tokenPort,
+                                     GenerateRefreshTokenPort refreshPort,
+                                     SaveRefreshTokenPort savePort) {
+        return new LoginUserUseCase(
+                email -> active || email.equals("inactive@email.com")
+                        ? Optional.of(credentials(active))
+                        : Optional.empty(),
+                tokenPort,
+                refreshPort,
+                savePort,
+                passwordEncoder
+        );
+    }
+
     @Test
-    void login_returnsUserAndToken_whenCredentialsAreValid() {
-        var credentials = credentials(true);
-        GenerateAuthTokenPort tokenPort = user -> "jwt-token";
-        var useCase = new LoginUserUseCase(email -> Optional.of(credentials), tokenPort, passwordEncoder);
+    void login_returnsUserAndTokens_whenCredentialsAreValid() {
+        var refreshData = new RefreshTokenData("refresh-token", Instant.now().plusSeconds(604800));
+        var sut = new LoginUserUseCase(
+                email -> Optional.of(credentials(true)),
+                user -> "access-token",
+                user -> refreshData,
+                (userId, data) -> {},
+                passwordEncoder
+        );
 
-        var result = useCase.login(new LoginCommand("fabricio@email.com", "senhaSegura123"));
+        var result = sut.login(new LoginCommand("fabricio@email.com", "senhaSegura123"));
 
-        assertEquals("jwt-token", result.token());
-        assertEquals(credentials.id(), result.user().id());
-        assertEquals(credentials.name(), result.user().name());
-        assertEquals(credentials.email(), result.user().email());
-        assertEquals(UserRole.ADMIN.name(), result.user().role());
+        assertThat(result.accessToken()).isEqualTo("access-token");
+        assertThat(result.refreshToken()).isEqualTo("refresh-token");
+        assertThat(result.user().email()).isEqualTo("fabricio@email.com");
+        assertThat(result.user().role()).isEqualTo(UserRole.ADMIN.name());
+    }
+
+    @Test
+    void login_persistsRefreshToken_whenCredentialsAreValid() {
+        var userId = new AtomicReference<UUID>();
+        var refreshData = new RefreshTokenData("refresh-token", Instant.now().plusSeconds(604800));
+        var sut = new LoginUserUseCase(
+                email -> Optional.of(credentials(true)),
+                user -> "access-token",
+                user -> refreshData,
+                (id, data) -> userId.set(id),
+                passwordEncoder
+        );
+
+        var result = sut.login(new LoginCommand("fabricio@email.com", "senhaSegura123"));
+
+        assertThat(userId.get()).isEqualTo(result.user().id());
     }
 
     @Test
     void login_throwsUnauthorizedException_whenEmailDoesNotExist() {
-        var useCase = new LoginUserUseCase(email -> Optional.empty(), user -> "jwt-token", passwordEncoder);
+        var sut = new LoginUserUseCase(
+                email -> Optional.empty(),
+                user -> "access-token",
+                user -> new RefreshTokenData("refresh-token", Instant.now()),
+                (userId, data) -> {},
+                passwordEncoder
+        );
 
-        var exception = assertThrows(UnauthorizedException.class,
-                () -> useCase.login(new LoginCommand("fabricio@email.com", "senhaSegura123")));
-
-        assertEquals(INVALID_CREDENTIALS_MESSAGE, exception.getMessage());
+        assertThatThrownBy(() -> sut.login(new LoginCommand("fabricio@email.com", "senhaSegura123")))
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessage(INVALID_CREDENTIALS_MESSAGE);
     }
 
     @Test
     void login_throwsUnauthorizedException_whenPasswordDoesNotMatch() {
-        var useCase = new LoginUserUseCase(email -> Optional.of(credentials(true)), user -> "jwt-token", passwordEncoder);
+        var sut = new LoginUserUseCase(
+                email -> Optional.of(credentials(true)),
+                user -> "access-token",
+                user -> new RefreshTokenData("refresh-token", Instant.now()),
+                (userId, data) -> {},
+                passwordEncoder
+        );
 
-        var exception = assertThrows(UnauthorizedException.class,
-                () -> useCase.login(new LoginCommand("fabricio@email.com", "senhaErrada123")));
-
-        assertEquals(INVALID_CREDENTIALS_MESSAGE, exception.getMessage());
+        assertThatThrownBy(() -> sut.login(new LoginCommand("fabricio@email.com", "senhaErrada123")))
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessage(INVALID_CREDENTIALS_MESSAGE);
     }
 
     @Test
     void login_throwsForbiddenException_whenUserIsInactive() {
-        var useCase = new LoginUserUseCase(email -> Optional.of(credentials(false)), user -> "jwt-token", passwordEncoder);
+        var sut = new LoginUserUseCase(
+                email -> Optional.of(credentials(false)),
+                user -> "access-token",
+                user -> new RefreshTokenData("refresh-token", Instant.now()),
+                (userId, data) -> {},
+                passwordEncoder
+        );
 
-        var exception = assertThrows(ForbiddenException.class,
-                () -> useCase.login(new LoginCommand("fabricio@email.com", "senhaSegura123")));
-
-        assertEquals("Usuário inativo.", exception.getMessage());
+        assertThatThrownBy(() -> sut.login(new LoginCommand("fabricio@email.com", "senhaSegura123")))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage("Usuário inativo, contate o administrador.");
     }
 
     private UserCredentials credentials(boolean active) {

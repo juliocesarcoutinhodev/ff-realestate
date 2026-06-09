@@ -6,58 +6,114 @@ import br.com.fabriciofaceroli.auth.application.port.out.SaveUserPort;
 import br.com.fabriciofaceroli.auth.domain.model.User;
 import br.com.fabriciofaceroli.auth.domain.model.UserRole;
 import br.com.fabriciofaceroli.shared.exception.ConflictException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class RegisterUserUseCaseTest {
+
+    @Mock
+    private FindUserByEmailPort findUserByEmailPort;
+
+    @Mock
+    private SaveUserPort saveUserPort;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    private RegisterUserUseCase useCase;
+
+    @BeforeEach
+    void setUp() {
+        useCase = new RegisterUserUseCase(findUserByEmailPort, saveUserPort, passwordEncoder);
+    }
+
     @Test
     void register_createsAdminUser_withEncodedPassword() {
-        var savePort = new CapturingSaveUserPort();
-        var useCase = new RegisterUserUseCase(email -> Optional.empty(), savePort, passwordEncoder);
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
+        var savedUser = new User(UUID.randomUUID(), command.name(), command.email(), UserRole.ADMIN.name(), true);
 
-        var user = useCase.register(command);
+        when(findUserByEmailPort.findByEmail(command.email())).thenReturn(Optional.empty());
+        when(saveUserPort.save(any(), anyString())).thenReturn(savedUser);
 
-        assertEquals("Fabrício Faceroli", user.name());
-        assertEquals("fabricio@email.com", user.email());
-        assertEquals(UserRole.ADMIN.name(), user.role());
-        assertTrue(user.active());
-        assertNotEquals("senhaSegura123", savePort.encodedPassword);
-        assertTrue(passwordEncoder.matches("senhaSegura123", savePort.encodedPassword));
+        var result = useCase.register(command);
+
+        assertThat(result.name()).isEqualTo("Fabrício Faceroli");
+        assertThat(result.email()).isEqualTo("fabricio@email.com");
+        assertThat(result.role()).isEqualTo(UserRole.ADMIN.name());
+        assertThat(result.active()).isTrue();
+    }
+
+    @Test
+    void register_encodesPasswordBeforeSaving() {
+        var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
+        var savedUser = new User(UUID.randomUUID(), command.name(), command.email(), UserRole.ADMIN.name(), true);
+
+        when(findUserByEmailPort.findByEmail(any())).thenReturn(Optional.empty());
+        when(saveUserPort.save(any(), anyString())).thenReturn(savedUser);
+
+        useCase.register(command);
+
+        var passwordCaptor = ArgumentCaptor.forClass(String.class);
+        verify(saveUserPort).save(any(), passwordCaptor.capture());
+
+        var encodedPassword = passwordCaptor.getValue();
+        assertThat(encodedPassword).isNotEqualTo("senhaSegura123");
+        assertThat(passwordEncoder.matches("senhaSegura123", encodedPassword)).isTrue();
+    }
+
+    @Test
+    void register_savesUserWithAdminRoleAndActiveTrue() {
+        var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
+        var savedUser = new User(UUID.randomUUID(), command.name(), command.email(), UserRole.ADMIN.name(), true);
+
+        when(findUserByEmailPort.findByEmail(any())).thenReturn(Optional.empty());
+        when(saveUserPort.save(any(), anyString())).thenReturn(savedUser);
+
+        useCase.register(command);
+
+        var userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(saveUserPort).save(userCaptor.capture(), any());
+        assertThat(userCaptor.getValue().role()).isEqualTo(UserRole.ADMIN.name());
+        assertThat(userCaptor.getValue().active()).isTrue();
     }
 
     @Test
     void register_throwsConflictException_whenEmailAlreadyExists() {
-        FindUserByEmailPort findUserByEmailPort = email -> Optional.of(
-                new User(UUID.randomUUID(), "Fabrício Faceroli", email, UserRole.ADMIN.name(), true)
-        );
-        var useCase = new RegisterUserUseCase(findUserByEmailPort, new CapturingSaveUserPort(), passwordEncoder);
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
+        var existingUser = new User(UUID.randomUUID(), "Outro", command.email(), UserRole.ADMIN.name(), true);
 
-        var exception = assertThrows(ConflictException.class, () -> useCase.register(command));
+        when(findUserByEmailPort.findByEmail(command.email())).thenReturn(Optional.of(existingUser));
 
-        assertEquals("E-mail já cadastrado.", exception.getMessage());
+        assertThatThrownBy(() -> useCase.register(command))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("E-mail já cadastrado.");
     }
 
-    private static class CapturingSaveUserPort implements SaveUserPort {
+    @Test
+    void register_neverCallsSavePort_whenEmailAlreadyExists() {
+        var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
+        var existingUser = new User(UUID.randomUUID(), "Outro", command.email(), UserRole.ADMIN.name(), true);
 
-        private String encodedPassword;
+        when(findUserByEmailPort.findByEmail(command.email())).thenReturn(Optional.of(existingUser));
 
-        @Override
-        public User save(User user, String encodedPassword) {
-            this.encodedPassword = encodedPassword;
-            return new User(UUID.randomUUID(), user.name(), user.email(), user.role(), user.active());
-        }
+        assertThatThrownBy(() -> useCase.register(command)).isInstanceOf(ConflictException.class);
+
+        verify(saveUserPort, never()).save(any(), any());
     }
 }

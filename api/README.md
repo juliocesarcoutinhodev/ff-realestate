@@ -64,8 +64,8 @@ A API sobe em `http://localhost:8080`.
 | `DB_USERNAME` | Usuário do banco | Sim |
 | `DB_PASSWORD` | Senha do banco | Sim |
 | `JWT_SECRET` | Chave HMAC256 (mín. 32 caracteres) | Sim |
-| `JWT_EXPIRATION_MS` | Expiração do access token em ms | Não (padrão: 86400000) |
-| `JWT_REFRESH_EXPIRATION_MS` | Expiração do refresh token em ms | Não (padrão: 604800000) |
+| `JWT_ACCESS_TOKEN_EXPIRATION` | Expiração do access token em segundos | Não (padrão: 900) |
+| `JWT_REFRESH_TOKEN_EXPIRATION` | Expiração do refresh token em segundos | Não (padrão: 604800) |
 | `MINIO_ENDPOINT` | URL do servidor MinIO | Sim |
 | `MINIO_ACCESS_KEY` | Access key do MinIO | Sim |
 | `MINIO_SECRET_KEY` | Secret key do MinIO | Sim |
@@ -73,6 +73,9 @@ A API sobe em `http://localhost:8080`.
 | `MINIO_PUBLIC_URL` | URL pública base para links de arquivos | Sim |
 | `ALLOWED_ORIGINS` | Origens permitidas no CORS (separadas por vírgula) | Não (padrão: localhost:4200) |
 | `COOKIE_DOMAIN` | Domínio dos cookies de autenticação | Não (padrão: localhost) |
+| `COOKIE_SECURE` | Se os cookies devem usar a flag Secure | Não (padrão: false) |
+| `ADMIN_DEFAULT_EMAIL` | E-mail do admin padrão criado pela migration | Sim |
+| `ADMIN_DEFAULT_PASSWORD` | Senha do admin padrão (usada apenas na migration seed) | Sim |
 
 Consulte `.env.example` para exemplos de valores por ambiente.
 
@@ -116,12 +119,14 @@ br.com.fabriciofaceroli
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
 | GET | `/api/v1/health` | Não | Health check |
-| POST | `/api/v1/auth/login` | Não | Autenticação |
-| POST | `/api/v1/auth/register` | Sim | Criação de novo admin |
+| POST | `/api/v1/auth/login` | Não | Autenticação — emite `accessToken` + `refresh_token` em cookies HttpOnly |
+| POST | `/api/v1/auth/register` | ADMIN | Criação de novo admin |
+| POST | `/api/v1/auth/refresh` | Não | Renova o access token via cookie `refresh_token` |
+| POST | `/api/v1/auth/logout` | Sim | Invalida o refresh token e limpa os cookies |
 | GET | `/api/v1/properties` | Não | Lista imóveis |
 | GET | `/api/v1/categories` | Não | Lista categorias |
 | GET | `/api/v1/testimonials` | Não | Lista depoimentos |
-| * | demais rotas | Sim | Bearer token |
+| * | demais rotas | Sim | Requer `accessToken` via cookie |
 
 Documentação completa: `http://localhost:8080/swagger-ui.html`
 
@@ -145,12 +150,14 @@ Importe os arquivos em `doc/postman/`:
 2. `local.postman_environment.json` — environment local
 3. `prod.postman_environment.json` — template de produção
 
-Selecione o environment **Local**, execute **Auth › Login** e o token é salvo automaticamente a partir do `Set-Cookie` para todos os demais requests.
+Selecione o environment **Local**, execute **Auth › Login** e o token é salvo automaticamente para todos os demais requests.
 
 Fluxo recomendado:
 
-1. `Auth › Login` autentica e grava o JWT em cookie HttpOnly
-2. `Auth › Register Admin User` usa o token salvo na collection para criar novos admins
+1. `Auth › Login` — emite dois cookies (`accessToken` 15 min + `refresh_token` 7 dias) e salva o JWT na variável `accessToken` da coleção
+2. `Auth › Register Admin User` — usa o token salvo para criar novos admins
+3. `Auth › Refresh Token` — renova o access token usando o cookie `refresh_token` (path `/api/v1/auth`)
+4. `Auth › Logout` — invalida o refresh token no banco e limpa os cookies
 
 ---
 

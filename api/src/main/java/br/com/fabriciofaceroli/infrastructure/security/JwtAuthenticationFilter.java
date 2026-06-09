@@ -1,6 +1,5 @@
 package br.com.fabriciofaceroli.infrastructure.security;
 
-import br.com.fabriciofaceroli.auth.infrastructure.persistence.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,11 +20,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
-    private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
+    public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -33,17 +30,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         var token = extractBearerToken(request);
-        if (token != null && jwtService.isTokenValid(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (token != null
+                && jwtService.isTokenValid(token)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
             var email = jwtService.extractEmail(token);
-            userRepository.findByEmail(email)
-                    .filter(user -> user.isActive())
-                    .ifPresent(user -> {
-                        var authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
-                        var authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, authorities);
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    });
+            var role = jwtService.extractRole(token);
+            var authorities = List.of(new SimpleGrantedAuthority(role));
+            var authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         filterChain.doFilter(request, response);
     }
 

@@ -1,6 +1,7 @@
 package br.com.fabriciofaceroli.auth.infrastructure.persistence.adapter;
 
 import br.com.fabriciofaceroli.auth.application.port.out.FindUserByEmailPort;
+import br.com.fabriciofaceroli.auth.application.port.out.FindUserByIdPort;
 import br.com.fabriciofaceroli.auth.application.port.out.FindUserCredentialsByEmailPort;
 import br.com.fabriciofaceroli.auth.application.port.out.SaveUserPort;
 import br.com.fabriciofaceroli.auth.domain.model.User;
@@ -13,9 +14,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
-public class UserPersistenceAdapter implements FindUserByEmailPort, FindUserCredentialsByEmailPort, SaveUserPort {
+public class UserPersistenceAdapter implements FindUserByEmailPort, FindUserByIdPort, FindUserCredentialsByEmailPort, SaveUserPort {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -28,6 +30,11 @@ public class UserPersistenceAdapter implements FindUserByEmailPort, FindUserCred
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email).map(userMapper::toUser);
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return userRepository.findById(id).map(userMapper::toUser);
     }
 
     @Override
