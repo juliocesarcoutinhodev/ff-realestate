@@ -27,6 +27,12 @@
       "value": "",
       "description": "ID da última categoria criada. Preenchido automaticamente pelo script do Create Category. Usado pelos requests Update Category e Delete Category.",
       "type": "string"
+    },
+    {
+      "key": "propertyId",
+      "value": "",
+      "description": "ID do primeiro imóvel retornado pelo List Properties. Preenchido automaticamente pelo script do List Properties. Reservado para futuros requests de Get/Update/Delete Property.",
+      "type": "string"
     }
   ],
   "item": [
@@ -446,7 +452,7 @@
     },
     {
       "name": "Properties",
-      "description": "Gerenciamento de imóveis.",
+      "description": "Catálogo de imóveis.",
       "item": [
         {
           "name": "List Properties",
@@ -455,18 +461,61 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/properties?page=0&size=10&sort=createdAt,desc",
+              "raw": "{{baseUrl}}/api/v1/properties?page=0&size=12",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "properties"],
               "query": [
-                { "key": "page", "value": "0" },
-                { "key": "size", "value": "10" },
-                { "key": "sort", "value": "createdAt,desc" }
+                { "key": "page", "value": "0", "description": "Número da página (base 0)" },
+                { "key": "size", "value": "12", "description": "Itens por página" },
+                { "key": "categoryId", "value": "", "description": "UUID da categoria (ex: 550e8400-e29b-41d4-a716-446655440000)", "disabled": true },
+                { "key": "dealType", "value": "SALE", "description": "Tipo de negócio: SALE ou RENT", "disabled": true },
+                { "key": "featured", "value": "true", "description": "Filtra apenas destaques", "disabled": true },
+                { "key": "city", "value": "São Paulo", "description": "Cidade (busca parcial, case-insensitive)", "disabled": true }
               ]
             },
-            "description": "Lista imóveis paginados. Público."
+            "description": "Retorna o catálogo paginado de imóveis com status ACTIVE. Todos os filtros são opcionais. Público — não requer autenticação."
           },
-          "response": []
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data).to.be.an('object');",
+                  "    pm.expect(json.data.content).to.be.an('array');",
+                  "    pm.expect(json.data).to.have.property('totalElements');",
+                  "    pm.expect(json.data).to.have.property('totalPages');",
+                  "    pm.expect(json.data).to.have.property('page');",
+                  "    pm.expect(json.data).to.have.property('size');",
+                  "",
+                  "    if (json.data.content.length > 0) {",
+                  "        const first = json.data.content[0];",
+                  "        pm.collectionVariables.set('propertyId', first.id);",
+                  "        console.log('propertyId salvo na coleção: ' + first.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/properties?page=0&size=12" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Imóveis listados com sucesso.\",\n    \"data\": {\n        \"content\": [\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n                \"title\": \"Casa Nova no Jardim Mirian\",\n                \"slug\": \"casa-nova-no-jardim-mirian\",\n                \"price\": 450000.00,\n                \"area\": 125.00,\n                \"bedrooms\": 3,\n                \"suites\": 1,\n                \"bathrooms\": 2,\n                \"parkingSpots\": 2,\n                \"city\": \"São Paulo\",\n                \"neighborhood\": \"Jardim Mirian\",\n                \"dealType\": \"SALE\",\n                \"featured\": false,\n                \"categoryId\": \"550e8400-e29b-41d4-a716-446655440001\",\n                \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n                \"coverPhoto\": null\n            }\n        ],\n        \"totalElements\": 42,\n        \"totalPages\": 4,\n        \"page\": 0,\n        \"size\": 12\n    }\n}"
+            }
+          ]
         },
         {
           "name": "Get Property by ID",
@@ -478,9 +527,9 @@
               "raw": "{{baseUrl}}/api/v1/properties/:id",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "properties", ":id"],
-              "variable": [{ "key": "id", "value": "1" }]
+              "variable": [{ "key": "id", "value": "{{propertyId}}" }]
             },
-            "description": "Retorna um imóvel pelo ID. Público."
+            "description": "⚠️ Não implementado ainda. Retornará o detalhe completo de um imóvel pelo ID. Público."
           },
           "response": []
         },
@@ -491,7 +540,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"Casa no Jardim América\",\n    \"description\": \"Casa com 3 quartos, 2 banheiros e 1 suíte.\",\n    \"price\": 850000.00,\n    \"area\": 180.5,\n    \"bedrooms\": 3,\n    \"bathrooms\": 2,\n    \"categoryId\": 1,\n    \"address\": {\n        \"street\": \"Rua das Flores\",\n        \"number\": \"123\",\n        \"city\": \"São Paulo\",\n        \"state\": \"SP\",\n        \"zipCode\": \"01310-100\"\n    }\n}",
+              "raw": "{\n    \"title\": \"Casa Nova no Jardim Mirian\",\n    \"description\": \"Casa com 3 quartos, 1 suíte e 2 vagas.\",\n    \"price\": 450000.00,\n    \"area\": 125.00,\n    \"bedrooms\": 3,\n    \"suites\": 1,\n    \"bathrooms\": 2,\n    \"parkingSpots\": 2,\n    \"address\": \"Rua das Flores, 123\",\n    \"neighborhood\": \"Jardim Mirian\",\n    \"city\": \"São Paulo\",\n    \"state\": \"SP\",\n    \"zipCode\": \"04300-000\",\n    \"dealType\": \"SALE\",\n    \"featured\": false,\n    \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n    \"categoryId\": \"{{categoryId}}\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -499,7 +548,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "properties"]
             },
-            "description": "Cria um novo imóvel. Requer autenticação (ADMIN)."
+            "description": "⚠️ Não implementado ainda. Criará um novo imóvel. Requer autenticação (ADMIN)."
           },
           "response": []
         },
@@ -510,16 +559,16 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"Casa no Jardim América — Atualizada\",\n    \"price\": 900000.00\n}",
+              "raw": "{\n    \"title\": \"Casa Nova no Jardim Mirian — Atualizada\",\n    \"price\": 480000.00,\n    \"featured\": true\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/properties/:id",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "properties", ":id"],
-              "variable": [{ "key": "id", "value": "1" }]
+              "variable": [{ "key": "id", "value": "{{propertyId}}" }]
             },
-            "description": "Atualiza um imóvel. Requer autenticação (ADMIN)."
+            "description": "⚠️ Não implementado ainda. Atualizará um imóvel. Requer autenticação (ADMIN)."
           },
           "response": []
         },
@@ -532,9 +581,9 @@
               "raw": "{{baseUrl}}/api/v1/properties/:id",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "properties", ":id"],
-              "variable": [{ "key": "id", "value": "1" }]
+              "variable": [{ "key": "id", "value": "{{propertyId}}" }]
             },
-            "description": "Remove um imóvel. Requer autenticação (ADMIN)."
+            "description": "⚠️ Não implementado ainda. Removerá um imóvel. Requer autenticação (ADMIN)."
           },
           "response": []
         }
