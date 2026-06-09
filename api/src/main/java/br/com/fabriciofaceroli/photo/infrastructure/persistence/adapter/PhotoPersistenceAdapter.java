@@ -29,6 +29,14 @@ public class PhotoPersistenceAdapter implements FindPhotosByPropertyPort, SavePh
     }
 
     @Override
+    public List<PropertyPhoto> findByPropertyId(UUID propertyId) {
+        return propertyPhotoRepository.findByPropertyIdOrderByCoverDescOrderIndexAsc(propertyId)
+                .stream()
+                .map(propertyPhotoMapper::toPropertyPhoto)
+                .toList();
+    }
+
+    @Override
     public List<PropertyPhoto> saveAll(List<PropertyPhoto> photos) {
         var entities = photos.stream().map(propertyPhotoMapper::toEntity).toList();
         return propertyPhotoRepository.saveAll(entities).stream()

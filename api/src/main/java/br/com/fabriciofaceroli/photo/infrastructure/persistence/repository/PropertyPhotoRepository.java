@@ -10,5 +10,6 @@ public interface PropertyPhotoRepository extends JpaRepository<PropertyPhotoEnti
     int countByPropertyId(UUID propertyId);
     boolean existsByPropertyIdAndCoverTrue(UUID propertyId);
     List<PropertyPhotoEntity> findByPropertyIdOrderByOrderIndexAsc(UUID propertyId);
+    List<PropertyPhotoEntity> findByPropertyIdOrderByCoverDescOrderIndexAsc(UUID propertyId);
     void deleteByPropertyId(UUID propertyId);
 }

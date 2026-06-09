@@ -1869,6 +1869,28 @@
       "description": "Upload e remoção de fotos de imóveis via MinIO. Requer autenticação (ADMIN).",
       "item": [
         {
+          "name": "List Photos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/{{propertyId}}/photos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties",
+                "{{propertyId}}",
+                "photos"
+              ]
+            },
+            "description": "Lista todas as fotos de um imóvel ordenadas por capa primeiro e depois por order_index. Público, sem autenticação. Retorna array vazio se não houver fotos."
+          },
+          "response": []
+        },
+        {
           "name": "Upload Photos",
           "request": {
             "auth": {

@@ -20,6 +20,17 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 public interface PhotoApiDocs {
 
+    @Operation(summary = "Lista fotos do imóvel", description = "Retorna todas as fotos de um imóvel ordenadas por capa primeiro e depois por order_index. Público, sem autenticação.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de fotos (pode ser vazia)",
+                    content = @Content(schema = @Schema(implementation = PhotoUploadResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Imóvel não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<List<PhotoUploadResponse>> listPhotos(
+            @Parameter(description = "ID do imóvel", required = true) UUID propertyId
+    );
+
     @Operation(summary = "Upload de fotos", description = "Faz upload de múltiplas fotos para um imóvel. A primeira foto vira capa automaticamente se o imóvel ainda não tiver nenhuma foto.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Fotos enviadas com sucesso",

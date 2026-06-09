@@ -170,11 +170,16 @@ br.com.fabriciofaceroli
 | PATCH | `/api/v1/properties/{id}/status` | ADMIN | Ativa ou inativa um imóvel sem alterar nenhum outro dado |
 | GET | `/api/v1/admin/properties` | ADMIN | Lista todos os imóveis incluindo inativos; suporta filtro por `status` |
 
-### Photos (admin)
+### Photos
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| POST | `/api/v1/properties/{id}/photos` | ADMIN | Faz upload de múltiplas fotos (`multipart/form-data`, campo `files[]`) |
+| GET | `/api/v1/properties/{id}/photos` | Não | Lista todas as fotos do imóvel ordenadas por capa primeiro e depois por `order_index` |
+| POST | `/api/v1/properties/{id}/photos` | ADMIN | Faz upload de múltiplas fotos (`multipart/form-data`, campo `files`) |
+
+**Listagem de fotos:**
+- A foto com `cover=true` sempre retorna primeiro, independente do `order_index`
+- Retorna array vazio `[]` se o imóvel não tiver fotos
 
 **Upload de fotos:**
 - Formatos aceitos: `jpg`, `jpeg`, `png`, `webp`
@@ -231,7 +236,8 @@ Fluxo recomendado:
 15. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
 16. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
 17. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
-18. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files[]` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN
+18. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN
+19. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
 
 ---
 
