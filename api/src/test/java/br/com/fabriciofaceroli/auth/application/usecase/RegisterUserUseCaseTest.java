@@ -25,6 +25,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+// Nota: validação de formato de senha (mínimo 8 chars, maiúscula, número) é responsabilidade
+// de RegisterRequest via @Pattern (Jakarta Validation). O use case nunca recebe senha inválida.
 @ExtendWith(MockitoExtension.class)
 class RegisterUserUseCaseTest {
 
@@ -44,7 +46,7 @@ class RegisterUserUseCaseTest {
     }
 
     @Test
-    void register_createsAdminUser_withEncodedPassword() {
+    void register_shouldReturnCreatedUser_whenEmailIsNotRegistered() {
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
         var savedUser = new User(UUID.randomUUID(), command.name(), command.email(), UserRole.ADMIN.name(), true);
 
@@ -60,7 +62,7 @@ class RegisterUserUseCaseTest {
     }
 
     @Test
-    void register_encodesPasswordBeforeSaving() {
+    void register_shouldEncodePassword_whenSavingNewUser() {
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
         var savedUser = new User(UUID.randomUUID(), command.name(), command.email(), UserRole.ADMIN.name(), true);
 
@@ -71,14 +73,12 @@ class RegisterUserUseCaseTest {
 
         var passwordCaptor = ArgumentCaptor.forClass(String.class);
         verify(saveUserPort).save(any(), passwordCaptor.capture());
-
-        var encodedPassword = passwordCaptor.getValue();
-        assertThat(encodedPassword).isNotEqualTo("senhaSegura123");
-        assertThat(passwordEncoder.matches("senhaSegura123", encodedPassword)).isTrue();
+        assertThat(passwordCaptor.getValue()).isNotEqualTo("senhaSegura123");
+        assertThat(passwordEncoder.matches("senhaSegura123", passwordCaptor.getValue())).isTrue();
     }
 
     @Test
-    void register_savesUserWithAdminRoleAndActiveTrue() {
+    void register_shouldSaveUserWithAdminRoleAndActiveTrue_whenRegisteringNewUser() {
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
         var savedUser = new User(UUID.randomUUID(), command.name(), command.email(), UserRole.ADMIN.name(), true);
 
@@ -94,7 +94,7 @@ class RegisterUserUseCaseTest {
     }
 
     @Test
-    void register_throwsConflictException_whenEmailAlreadyExists() {
+    void register_shouldThrowConflictException_whenEmailAlreadyExists() {
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
         var existingUser = new User(UUID.randomUUID(), "Outro", command.email(), UserRole.ADMIN.name(), true);
 
@@ -106,14 +106,13 @@ class RegisterUserUseCaseTest {
     }
 
     @Test
-    void register_neverCallsSavePort_whenEmailAlreadyExists() {
+    void register_shouldNotCallSavePort_whenEmailAlreadyExists() {
         var command = new RegisterCommand("Fabrício Faceroli", "fabricio@email.com", "senhaSegura123");
         var existingUser = new User(UUID.randomUUID(), "Outro", command.email(), UserRole.ADMIN.name(), true);
 
         when(findUserByEmailPort.findByEmail(command.email())).thenReturn(Optional.of(existingUser));
 
         assertThatThrownBy(() -> useCase.register(command)).isInstanceOf(ConflictException.class);
-
         verify(saveUserPort, never()).save(any(), any());
     }
 }

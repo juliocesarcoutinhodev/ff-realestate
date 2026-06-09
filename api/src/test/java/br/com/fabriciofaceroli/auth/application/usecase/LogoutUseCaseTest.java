@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// Nota: a invalidação dos cookies é responsabilidade do AuthController (camada adapter),
+// não do use case. Aqui testamos apenas a lógica de negócio: revogação do refresh token.
 @ExtendWith(MockitoExtension.class)
 class LogoutUseCaseTest {
 
@@ -19,7 +21,7 @@ class LogoutUseCaseTest {
     private static final UUID USER_ID = UUID.randomUUID();
 
     @Test
-    void logout_revokesRefreshToken_whenCookieIsPresent() {
+    void logout_shouldRevokeRefreshToken_whenTokenIsPresent() {
         var revokedId = new AtomicReference<UUID>();
         var sut = new LogoutUseCase(
                 tokenValue -> Optional.of(validToken()),
@@ -32,7 +34,7 @@ class LogoutUseCaseTest {
     }
 
     @Test
-    void logout_doesNotThrow_whenCookieIsAbsent() {
+    void logout_shouldNotThrow_whenRefreshTokenCookieIsAbsent() {
         var sut = new LogoutUseCase(
                 tokenValue -> Optional.empty(),
                 id -> {}
@@ -42,7 +44,7 @@ class LogoutUseCaseTest {
     }
 
     @Test
-    void logout_doesNotThrow_whenTokenNotFoundInDatabase() {
+    void logout_shouldNotThrow_whenTokenNotFoundInDatabase() {
         var sut = new LogoutUseCase(
                 tokenValue -> Optional.empty(),
                 id -> {}
@@ -52,7 +54,7 @@ class LogoutUseCaseTest {
     }
 
     @Test
-    void logout_doesNotRevoke_whenRefreshTokenValueIsNull() {
+    void logout_shouldNotCallRevoke_whenRefreshTokenValueIsNull() {
         var revokedId = new AtomicReference<UUID>();
         var sut = new LogoutUseCase(
                 tokenValue -> Optional.of(validToken()),

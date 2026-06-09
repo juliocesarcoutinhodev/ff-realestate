@@ -29,23 +29,8 @@ class LoginUserUseCaseTest {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private LoginUserUseCase useCase(boolean active,
-                                     GenerateAuthTokenPort tokenPort,
-                                     GenerateRefreshTokenPort refreshPort,
-                                     SaveRefreshTokenPort savePort) {
-        return new LoginUserUseCase(
-                email -> active || email.equals("inactive@email.com")
-                        ? Optional.of(credentials(active))
-                        : Optional.empty(),
-                tokenPort,
-                refreshPort,
-                savePort,
-                passwordEncoder
-        );
-    }
-
     @Test
-    void login_returnsUserAndTokens_whenCredentialsAreValid() {
+    void login_shouldReturnAccessAndRefreshTokens_whenCredentialsAreValid() {
         var refreshData = new RefreshTokenData("refresh-token", Instant.now().plusSeconds(604800));
         var sut = new LoginUserUseCase(
                 email -> Optional.of(credentials(true)),
@@ -64,24 +49,24 @@ class LoginUserUseCaseTest {
     }
 
     @Test
-    void login_persistsRefreshToken_whenCredentialsAreValid() {
-        var userId = new AtomicReference<UUID>();
+    void login_shouldPersistRefreshToken_whenCredentialsAreValid() {
+        var savedUserId = new AtomicReference<UUID>();
         var refreshData = new RefreshTokenData("refresh-token", Instant.now().plusSeconds(604800));
         var sut = new LoginUserUseCase(
                 email -> Optional.of(credentials(true)),
                 user -> "access-token",
                 user -> refreshData,
-                (id, data) -> userId.set(id),
+                (id, data) -> savedUserId.set(id),
                 passwordEncoder
         );
 
         var result = sut.login(new LoginCommand("fabricio@email.com", "senhaSegura123"));
 
-        assertThat(userId.get()).isEqualTo(result.user().id());
+        assertThat(savedUserId.get()).isEqualTo(result.user().id());
     }
 
     @Test
-    void login_throwsUnauthorizedException_whenEmailDoesNotExist() {
+    void login_shouldThrowUnauthorizedException_whenEmailNotFound() {
         var sut = new LoginUserUseCase(
                 email -> Optional.empty(),
                 user -> "access-token",
@@ -96,7 +81,7 @@ class LoginUserUseCaseTest {
     }
 
     @Test
-    void login_throwsUnauthorizedException_whenPasswordDoesNotMatch() {
+    void login_shouldThrowUnauthorizedException_whenPasswordDoesNotMatch() {
         var sut = new LoginUserUseCase(
                 email -> Optional.of(credentials(true)),
                 user -> "access-token",
@@ -111,7 +96,7 @@ class LoginUserUseCaseTest {
     }
 
     @Test
-    void login_throwsForbiddenException_whenUserIsInactive() {
+    void login_shouldThrowForbiddenException_whenUserIsInactive() {
         var sut = new LoginUserUseCase(
                 email -> Optional.of(credentials(false)),
                 user -> "access-token",

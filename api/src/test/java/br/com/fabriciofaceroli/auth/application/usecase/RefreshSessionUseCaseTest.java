@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,10 +37,8 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    void refresh_returnsNewTokensAndUser_whenTokenIsValid() {
-        var token = validToken();
-        var user = user();
-        var sut = useCase(token, user);
+    void refresh_shouldReturnNewTokenPairAndUser_whenTokenIsValid() {
+        var sut = useCase(validToken(), user());
 
         var result = sut.refresh("valid-refresh-token");
 
@@ -51,7 +48,7 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    void refresh_revokesCurrentToken_beforeIssuingNew() {
+    void refresh_shouldRevokeCurrentToken_whenTokenIsValid() {
         var revokedId = new AtomicReference<UUID>();
         var newRefreshData = new RefreshTokenData("new-refresh-token", Instant.now().plusSeconds(604800));
         var sut = new RefreshSessionUseCase(
@@ -69,7 +66,7 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    void refresh_persistsNewRefreshToken_afterRotation() {
+    void refresh_shouldPersistNewRefreshToken_whenTokenIsValid() {
         var savedUserId = new AtomicReference<UUID>();
         var newRefreshData = new RefreshTokenData("new-refresh-token", Instant.now().plusSeconds(604800));
         var sut = new RefreshSessionUseCase(
@@ -87,7 +84,7 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    void refresh_throwsUnauthorizedException_whenTokenNotFound() {
+    void refresh_shouldThrowUnauthorizedException_whenTokenNotFound() {
         var sut = new RefreshSessionUseCase(
                 tokenValue -> Optional.empty(),
                 id -> {},
@@ -103,7 +100,7 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    void refresh_throwsUnauthorizedException_whenTokenIsRevoked() {
+    void refresh_shouldThrowUnauthorizedException_whenTokenIsRevoked() {
         var revokedToken = new RefreshToken(TOKEN_ID, USER_ID, "revoked-token", Instant.now().plusSeconds(604800), true);
         var sut = useCase(revokedToken, user());
 
@@ -113,7 +110,7 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    void refresh_throwsUnauthorizedException_whenTokenIsExpired() {
+    void refresh_shouldThrowUnauthorizedException_whenTokenIsExpired() {
         var expiredToken = new RefreshToken(TOKEN_ID, USER_ID, "expired-token", Instant.now().minusSeconds(1), false);
         var sut = useCase(expiredToken, user());
 
