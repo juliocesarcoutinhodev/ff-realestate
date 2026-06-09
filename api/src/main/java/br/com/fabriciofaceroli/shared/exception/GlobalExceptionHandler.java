@@ -2,7 +2,6 @@ package br.com.fabriciofaceroli.shared.exception;
 
 import br.com.fabriciofaceroli.shared.response.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,14 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -25,22 +22,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        var message = ex.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.joining("; "));
-        return ResponseEntity
-                .badRequest()
-                .body(ErrorResponse.of(400, "Bad Request", message));
+        var errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> new ErrorResponse.FieldError(e.getField(), e.getDefaultMessage()))
+                .toList();
+        return ResponseEntity.badRequest().body(ErrorResponse.ofValidation(errors));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
-        var message = ex.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining("; "));
-        return ResponseEntity
-                .badRequest()
-                .body(ErrorResponse.of(400, "Bad Request", message));
+        var errors = ex.getConstraintViolations().stream()
+                .map(v -> new ErrorResponse.FieldError(v.getPropertyPath().toString(), v.getMessage()))
+                .toList();
+        return ResponseEntity.badRequest().body(ErrorResponse.ofValidation(errors));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

@@ -164,6 +164,8 @@ br.com.fabriciofaceroli
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
+| POST | `/api/v1/properties` | ADMIN | Cria novo imóvel (slug gerado automaticamente a partir do título) |
+| PUT | `/api/v1/properties/{id}` | ADMIN | Atualiza imóvel (slug regenerado apenas se o título mudar; status opcional) |
 | GET | `/api/v1/admin/properties` | ADMIN | Lista todos os imóveis incluindo inativos; suporta filtro por `status` |
 
 **Query params — listagem admin (inclui todos os da listagem pública, mais):**
@@ -211,6 +213,8 @@ Fluxo recomendado:
 11. `Properties › List Properties` — lista imóveis ativos com filtros opcionais (`categoryId`, `dealType`, `featured`, `city`) e paginação; salva `propertySlug` automaticamente
 12. `Properties › Get Property by Slug` — retorna detalhes completos do primeiro imóvel listado (categoria aninhada + array de fotos)
 13. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
+14. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
+15. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
 
 ---
 

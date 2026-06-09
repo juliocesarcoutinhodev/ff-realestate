@@ -49,13 +49,21 @@
         {
           "name": "Health Check",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
             },
             "description": "Verifica se a API está em execução. Não requer autenticação."
           },
@@ -82,9 +90,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/health" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/health"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": \"UP\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -98,18 +113,36 @@
         {
           "name": "Login",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"email\": \"{{adminEmail}}\",\n    \"password\": \"{{adminPassword}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Autentica o usuário e emite dois cookies HttpOnly: `accessToken` (15 min, path `/`) e `refresh_token` (7 dias, path `/api/v1/auth`). O script salva o `accessToken` nas variáveis da coleção para uso nos demais requests."
           },
@@ -146,12 +179,23 @@
               "code": 200,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/login"
+                }
               },
               "header": [
-                { "key": "Content-Type", "value": "application/json" },
-                { "key": "Set-Cookie", "value": "accessToken=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900" },
-                { "key": "Set-Cookie", "value": "refresh_token=<jwt>; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=604800" }
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "accessToken=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "refresh_token=<jwt>; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=604800"
+                }
               ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Login realizado com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
             },
@@ -161,9 +205,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/login"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"E-mail ou senha inválidos.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -172,9 +223,16 @@
               "code": 403,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/login" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/login"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Usuário inativo, contate o administrador.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -186,8 +244,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
             },
             "description": "Verifica se o cookie accessToken é válido e retorna os dados do usuário. Usado pelo frontend para decidir entre chamar /refresh ou redirecionar para login."
           },
@@ -217,9 +282,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/me" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/me"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Sessão válida.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
             },
             {
@@ -228,9 +300,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/me" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/me"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -238,13 +317,22 @@
         {
           "name": "Refresh Token",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
             },
             "description": "Renova a sessão usando o cookie HttpOnly `refresh_token` (path `/api/v1/auth`). Aplica rotation strategy: revoga o token atual, emite novo par `accessToken` (15 min) + `refresh_token` (7 dias). O script salva o novo `accessToken` na variável da coleção. Não requer Authorization header."
           },
@@ -281,12 +369,23 @@
               "code": 200,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/refresh"
+                }
               },
               "header": [
-                { "key": "Content-Type", "value": "application/json" },
-                { "key": "Set-Cookie", "value": "accessToken=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900" },
-                { "key": "Set-Cookie", "value": "refresh_token=<jwt>; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=604800" }
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "accessToken=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "refresh_token=<jwt>; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=604800"
+                }
               ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Sessão renovada com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
             },
@@ -296,9 +395,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/refresh"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Sessão expirada. Faça login novamente.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -307,16 +413,32 @@
           "name": "Register Admin User",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"{{newAdminName}}\",\n    \"email\": \"{{newAdminEmail}}\",\n    \"password\": \"{{newAdminPassword}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Registra um novo usuário administrador. Requer autenticação com usuário ADMIN; execute o Login antes para preencher `accessToken`."
           },
@@ -347,9 +469,16 @@
               "code": 201,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/register"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Usuário registrado com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Fabrício Faceroli\",\n        \"email\": \"fabricio@email.com\",\n        \"role\": \"ADMIN\"\n    }\n}"
             },
             {
@@ -358,9 +487,16 @@
               "code": 400,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/register"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"A senha deve ter no mínimo 8 caracteres, ao menos 1 letra maiúscula e 1 número.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -369,9 +505,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/register"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -380,9 +523,16 @@
               "code": 403,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/register"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -391,9 +541,16 @@
               "code": 409,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/register" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/register"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"E-mail já cadastrado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -405,8 +562,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
             },
             "description": "Revoga o refresh token no banco e invalida ambos os cookies (accessToken e refresh_token) via Max-Age=0. Requer autenticação via cookie accessToken. Idempotente: funciona mesmo sem cookie refresh_token presente."
           },
@@ -433,11 +597,19 @@
               "code": 204,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/logout" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/logout"
+                }
               },
               "header": [
-                { "key": "Set-Cookie", "value": "accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0" },
-                { "key": "Set-Cookie", "value": "refresh_token=; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=0" }
+                {
+                  "key": "Set-Cookie",
+                  "value": "accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "refresh_token=; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+                }
               ],
               "body": ""
             },
@@ -447,9 +619,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/auth/logout" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/logout"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -463,20 +642,56 @@
         {
           "name": "List Properties",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/properties?page=0&size=12",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "properties"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties"
+              ],
               "query": [
-                { "key": "page", "value": "0", "description": "Número da página (base 0)" },
-                { "key": "size", "value": "12", "description": "Itens por página" },
-                { "key": "categoryId", "value": "", "description": "UUID da categoria (ex: 550e8400-e29b-41d4-a716-446655440000)", "disabled": true },
-                { "key": "dealType", "value": "SALE", "description": "Tipo de negócio: SALE ou RENT", "disabled": true },
-                { "key": "featured", "value": "true", "description": "Filtra apenas destaques", "disabled": true },
-                { "key": "city", "value": "São Paulo", "description": "Cidade (busca parcial, case-insensitive)", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "0",
+                  "description": "Número da página (base 0)"
+                },
+                {
+                  "key": "size",
+                  "value": "12",
+                  "description": "Itens por página"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "",
+                  "description": "UUID da categoria (ex: 550e8400-e29b-41d4-a716-446655440000)",
+                  "disabled": true
+                },
+                {
+                  "key": "dealType",
+                  "value": "SALE",
+                  "description": "Tipo de negócio: SALE ou RENT",
+                  "disabled": true
+                },
+                {
+                  "key": "featured",
+                  "value": "true",
+                  "description": "Filtra apenas destaques",
+                  "disabled": true
+                },
+                {
+                  "key": "city",
+                  "value": "São Paulo",
+                  "description": "Cidade (busca parcial, case-insensitive)",
+                  "disabled": true
+                }
               ]
             },
             "description": "Retorna o catálogo paginado de imóveis com status ACTIVE. Todos os filtros são opcionais. Público — não requer autenticação."
@@ -518,9 +733,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/properties?page=0&size=12" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/properties?page=0&size=12"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Imóveis listados com sucesso.\",\n    \"data\": {\n        \"content\": [\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n                \"title\": \"Casa Nova no Jardim Mirian\",\n                \"slug\": \"casa-nova-no-jardim-mirian\",\n                \"price\": 450000.00,\n                \"area\": 125.00,\n                \"bedrooms\": 3,\n                \"suites\": 1,\n                \"bathrooms\": 2,\n                \"parkingSpots\": 2,\n                \"city\": \"São Paulo\",\n                \"neighborhood\": \"Jardim Mirian\",\n                \"dealType\": \"SALE\",\n                \"featured\": false,\n                \"categoryId\": \"550e8400-e29b-41d4-a716-446655440001\",\n                \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n                \"coverPhoto\": null\n            }\n        ],\n        \"totalElements\": 42,\n        \"totalPages\": 4,\n        \"page\": 0,\n        \"size\": 12\n    }\n}"
             }
           ]
@@ -528,14 +750,28 @@
         {
           "name": "Get Property by Slug",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/properties/:slug",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "properties", ":slug"],
-              "variable": [{ "key": "slug", "value": "{{propertySlug}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties",
+                ":slug"
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "{{propertySlug}}"
+                }
+              ]
             },
             "description": "Retorna os detalhes completos de um imóvel ativo pelo slug. Inclui objeto `category` aninhado e array `photos`. Retorna 404 se o slug não existir ou o imóvel estiver inativo. Público — não requer autenticação."
           },
@@ -572,9 +808,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/properties/casa-nova-no-jardim-mirian" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/properties/casa-nova-no-jardim-mirian"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Imóvel encontrado.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"title\": \"Casa Nova no Jardim Mirian\",\n        \"slug\": \"casa-nova-no-jardim-mirian\",\n        \"description\": \"Descrição completa do imóvel...\",\n        \"price\": 450000.00,\n        \"area\": 125.00,\n        \"bedrooms\": 3,\n        \"suites\": 1,\n        \"bathrooms\": 2,\n        \"parkingSpots\": 2,\n        \"address\": \"Rua das Flores, 123\",\n        \"neighborhood\": \"Jardim Mirian\",\n        \"city\": \"São Paulo\",\n        \"state\": \"SP\",\n        \"zipCode\": \"04000-000\",\n        \"dealType\": \"SALE\",\n        \"featured\": false,\n        \"status\": \"ACTIVE\",\n        \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n        \"category\": {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n            \"name\": \"Casa\",\n            \"slug\": \"casa\"\n        },\n        \"photos\": []\n    }\n}"
             },
             {
@@ -583,9 +826,16 @@
               "code": 404,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/properties/slug-inexistente" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/properties/slug-inexistente"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Imóvel não encontrado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -594,16 +844,31 @@
           "name": "Create Property",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"title\": \"Casa Nova no Jardim Mirian\",\n    \"description\": \"Casa com 3 quartos, 1 suíte e 2 vagas.\",\n    \"price\": 450000.00,\n    \"area\": 125.00,\n    \"bedrooms\": 3,\n    \"suites\": 1,\n    \"bathrooms\": 2,\n    \"parkingSpots\": 2,\n    \"address\": \"Rua das Flores, 123\",\n    \"neighborhood\": \"Jardim Mirian\",\n    \"city\": \"São Paulo\",\n    \"state\": \"SP\",\n    \"zipCode\": \"04300-000\",\n    \"dealType\": \"SALE\",\n    \"featured\": false,\n    \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n    \"categoryId\": \"{{categoryId}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/properties",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "properties"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties"
+              ]
             },
             "description": "⚠️ Não implementado ainda. Criará um novo imóvel. Requer autenticação (ADMIN)."
           },
@@ -613,17 +878,38 @@
           "name": "Update Property",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"title\": \"Casa Nova no Jardim Mirian — Atualizada\",\n    \"price\": 480000.00,\n    \"featured\": true\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/properties/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "properties", ":id"],
-              "variable": [{ "key": "id", "value": "{{propertyId}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{propertyId}}"
+                }
+              ]
             },
             "description": "⚠️ Não implementado ainda. Atualizará um imóvel. Requer autenticação (ADMIN)."
           },
@@ -636,9 +922,21 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/properties/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "properties", ":id"],
-              "variable": [{ "key": "id", "value": "{{propertyId}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{propertyId}}"
+                }
+              ]
             },
             "description": "⚠️ Não implementado ainda. Removerá um imóvel. Requer autenticação (ADMIN)."
           },
@@ -653,13 +951,21 @@
         {
           "name": "List Categories",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
             },
             "description": "Retorna todas as categorias ordenadas por nome ASC. Público — não requer autenticação."
           },
@@ -687,9 +993,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Categorias listadas com sucesso.\",\n    \"data\": [\n        {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n            \"name\": \"Apartamento\",\n            \"slug\": \"apartamento\",\n            \"description\": \"Imóveis em condomínio vertical.\"\n        }\n    ]\n}"
             }
           ]
@@ -697,14 +1010,28 @@
         {
           "name": "Get Category by Slug",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories/:slug",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories", ":slug"],
-              "variable": [{ "key": "slug", "value": "apartamento" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                ":slug"
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "apartamento"
+                }
+              ]
             },
             "description": "Retorna uma categoria pelo slug. Público — não requer autenticação."
           },
@@ -733,9 +1060,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/apartamento" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/apartamento"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Categoria encontrada.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Apartamento\",\n        \"slug\": \"apartamento\",\n        \"description\": \"Imóveis em condomínio vertical.\"\n    }\n}"
             },
             {
@@ -744,9 +1078,16 @@
               "code": 404,
               "originalRequest": {
                 "method": "GET",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/inexistente" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/inexistente"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Categoria não encontrada.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -755,16 +1096,31 @@
           "name": "Create Category",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Apartamento\",\n    \"description\": \"Imóveis em condomínio vertical.\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
             },
             "description": "Cria uma nova categoria. O slug é gerado automaticamente a partir do nome. Requer autenticação com role ADMIN."
           },
@@ -796,9 +1152,16 @@
               "code": 201,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Categoria criada com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Apartamento\",\n        \"slug\": \"apartamento\",\n        \"description\": \"Imóveis em condomínio vertical.\"\n    }\n}"
             },
             {
@@ -807,9 +1170,16 @@
               "code": 400,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"O nome é obrigatório.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -818,9 +1188,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -829,9 +1206,16 @@
               "code": 403,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -840,9 +1224,16 @@
               "code": 409,
               "originalRequest": {
                 "method": "POST",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"Já existe uma categoria com esse nome.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -851,17 +1242,38 @@
           "name": "Update Category",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Apartamento Compacto\",\n    \"description\": \"Studios e kitinetes.\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories", ":id"],
-              "variable": [{ "key": "id", "value": "{{categoryId}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{categoryId}}"
+                }
+              ]
             },
             "description": "Atualiza nome e/ou descrição de uma categoria. O slug é regenerado automaticamente se o nome mudar. Requer autenticação com role ADMIN."
           },
@@ -891,9 +1303,16 @@
               "code": 200,
               "originalRequest": {
                 "method": "PUT",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"success\": true,\n    \"message\": \"Categoria atualizada com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Apartamento Compacto\",\n        \"slug\": \"apartamento-compacto\",\n        \"description\": \"Studios e kitinetes.\"\n    }\n}"
             },
             {
@@ -902,9 +1321,16 @@
               "code": 400,
               "originalRequest": {
                 "method": "PUT",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"O nome é obrigatório.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -913,9 +1339,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "PUT",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -924,9 +1357,16 @@
               "code": 403,
               "originalRequest": {
                 "method": "PUT",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -935,9 +1375,16 @@
               "code": 404,
               "originalRequest": {
                 "method": "PUT",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Categoria não encontrada.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -946,9 +1393,16 @@
               "code": 409,
               "originalRequest": {
                 "method": "PUT",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"Já existe uma categoria com esse nome.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -960,9 +1414,21 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories", ":id"],
-              "variable": [{ "key": "id", "value": "{{categoryId}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{categoryId}}"
+                }
+              ]
             },
             "description": "Remove uma categoria. Rejeita se houver imóveis vinculados. Requer autenticação com role ADMIN."
           },
@@ -984,7 +1450,9 @@
               "code": 204,
               "originalRequest": {
                 "method": "DELETE",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
               "header": [],
               "body": ""
@@ -995,9 +1463,16 @@
               "code": 401,
               "originalRequest": {
                 "method": "DELETE",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -1006,9 +1481,16 @@
               "code": 403,
               "originalRequest": {
                 "method": "DELETE",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -1017,9 +1499,16 @@
               "code": 404,
               "originalRequest": {
                 "method": "DELETE",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Categoria não encontrada.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             },
             {
@@ -1028,9 +1517,16 @@
               "code": 409,
               "originalRequest": {
                 "method": "DELETE",
-                "url": { "raw": "{{baseUrl}}/api/v1/categories/:id" }
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/categories/:id"
+                }
               },
-              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"Não é possível excluir uma categoria com imóveis vinculados.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
@@ -1046,22 +1542,110 @@
           "description": "Gerenciamento administrativo do catálogo de imóveis.",
           "item": [
             {
+              "name": "Create Property",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Casa Nova no Jardim Mirian\",\n  \"description\": \"Excelente casa em condom\\u00ednio fechado com \\u00e1rea de lazer completa.\",\n  \"price\": 450000.0,\n  \"area\": 125.0,\n  \"bedrooms\": 3,\n  \"suites\": 1,\n  \"bathrooms\": 2,\n  \"parkingSpots\": 2,\n  \"address\": \"Rua das Flores, 123\",\n  \"neighborhood\": \"Jardim Mirian\",\n  \"city\": \"S\\u00e3o Paulo\",\n  \"state\": \"SP\",\n  \"zipCode\": \"04000-000\",\n  \"dealType\": \"SALE\",\n  \"featured\": false,\n  \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n  \"categoryId\": \"{{categoryId}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/properties",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "properties"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 201 Created', function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('Imóvel criado com sucesso', function () {",
+                      "    var json = pm.response.json();",
+                      "    pm.expect(json.success).to.be.true;",
+                      "    pm.expect(json.data.slug).to.be.a('string');",
+                      "    pm.collectionVariables.set('propertySlug', json.data.slug);",
+                      "    pm.collectionVariables.set('propertyId', json.data.id);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "List All Properties",
               "request": {
                 "method": "GET",
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/api/v1/admin/properties?page=0&size=12",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["api", "v1", "admin", "properties"],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "properties"
+                  ],
                   "query": [
-                    { "key": "page", "value": "0", "description": "Número da página (base 0)" },
-                    { "key": "size", "value": "12", "description": "Itens por página" },
-                    { "key": "status", "value": "INACTIVE", "description": "Filtra por status: ACTIVE ou INACTIVE (sem parâmetro = todos)", "disabled": true },
-                    { "key": "categoryId", "value": "", "description": "UUID da categoria", "disabled": true },
-                    { "key": "dealType", "value": "SALE", "description": "Tipo de negócio: SALE ou RENT", "disabled": true },
-                    { "key": "featured", "value": "true", "description": "Filtra apenas destaques", "disabled": true },
-                    { "key": "city", "value": "São Paulo", "description": "Cidade (busca parcial, case-insensitive)", "disabled": true }
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "description": "Número da página (base 0)"
+                    },
+                    {
+                      "key": "size",
+                      "value": "12",
+                      "description": "Itens por página"
+                    },
+                    {
+                      "key": "status",
+                      "value": "INACTIVE",
+                      "description": "Filtra por status: ACTIVE ou INACTIVE (sem parâmetro = todos)",
+                      "disabled": true
+                    },
+                    {
+                      "key": "categoryId",
+                      "value": "",
+                      "description": "UUID da categoria",
+                      "disabled": true
+                    },
+                    {
+                      "key": "dealType",
+                      "value": "SALE",
+                      "description": "Tipo de negócio: SALE ou RENT",
+                      "disabled": true
+                    },
+                    {
+                      "key": "featured",
+                      "value": "true",
+                      "description": "Filtra apenas destaques",
+                      "disabled": true
+                    },
+                    {
+                      "key": "city",
+                      "value": "São Paulo",
+                      "description": "Cidade (busca parcial, case-insensitive)",
+                      "disabled": true
+                    }
                   ]
                 },
                 "description": "Lista todos os imóveis independente do status (ACTIVE e INACTIVE). Suporta filtro opcional por status e os mesmos filtros da listagem pública. Requer autenticação com role ADMIN."
@@ -1095,9 +1679,16 @@
                   "code": 200,
                   "originalRequest": {
                     "method": "GET",
-                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties?page=0&size=12" }
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/admin/properties?page=0&size=12"
+                    }
                   },
-                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
                   "body": "{\n    \"success\": true,\n    \"message\": \"Imóveis listados com sucesso.\",\n    \"data\": {\n        \"content\": [\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n                \"title\": \"Casa Nova no Jardim Mirian\",\n                \"slug\": \"casa-nova-no-jardim-mirian\",\n                \"price\": 450000.00,\n                \"area\": 125.00,\n                \"bedrooms\": 3,\n                \"suites\": 1,\n                \"bathrooms\": 2,\n                \"parkingSpots\": 2,\n                \"city\": \"São Paulo\",\n                \"neighborhood\": \"Jardim Mirian\",\n                \"dealType\": \"SALE\",\n                \"featured\": false,\n                \"categoryId\": \"550e8400-e29b-41d4-a716-446655440001\",\n                \"externalUrl\": null,\n                \"coverPhoto\": null\n            },\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440002\",\n                \"title\": \"Apartamento Inativo\",\n                \"slug\": \"apartamento-inativo\",\n                \"price\": 280000.00,\n                \"area\": 60.00,\n                \"bedrooms\": 2,\n                \"suites\": 0,\n                \"bathrooms\": 1,\n                \"parkingSpots\": 1,\n                \"city\": \"São Paulo\",\n                \"neighborhood\": \"Vila Mariana\",\n                \"dealType\": \"SALE\",\n                \"featured\": false,\n                \"categoryId\": \"550e8400-e29b-41d4-a716-446655440003\",\n                \"externalUrl\": null,\n                \"coverPhoto\": null\n            }\n        ],\n        \"totalElements\": 2,\n        \"totalPages\": 1,\n        \"page\": 0,\n        \"size\": 12\n    }\n}"
                 },
                 {
@@ -1106,9 +1697,16 @@
                   "code": 401,
                   "originalRequest": {
                     "method": "GET",
-                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties" }
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/admin/properties"
+                    }
                   },
-                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
                   "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
                 },
                 {
@@ -1117,10 +1715,64 @@
                   "code": 403,
                   "originalRequest": {
                     "method": "GET",
-                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties" }
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/admin/properties"
+                    }
                   },
-                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
                   "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Property",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Casa Nova no Jardim Mirian (Atualizada)\",\n  \"description\": \"Descri\\u00e7\\u00e3o atualizada do im\\u00f3vel.\",\n  \"price\": 480000.0,\n  \"area\": 130.0,\n  \"bedrooms\": 3,\n  \"suites\": 2,\n  \"bathrooms\": 2,\n  \"parkingSpots\": 2,\n  \"address\": \"Rua das Flores, 123\",\n  \"neighborhood\": \"Jardim Mirian\",\n  \"city\": \"S\\u00e3o Paulo\",\n  \"state\": \"SP\",\n  \"zipCode\": \"04000-000\",\n  \"dealType\": \"SALE\",\n  \"featured\": true,\n  \"externalUrl\": null,\n  \"categoryId\": \"{{categoryId}}\",\n  \"status\": \"ACTIVE\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/properties/{{propertyId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "properties",
+                    "{{propertyId}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200 OK', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test('Imóvel atualizado com sucesso', function () {",
+                      "    var json = pm.response.json();",
+                      "    pm.expect(json.success).to.be.true;",
+                      "    pm.expect(json.data.id).to.equal(pm.collectionVariables.get('propertyId'));",
+                      "});"
+                    ]
+                  }
                 }
               ]
             }
@@ -1154,8 +1806,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/photos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "photos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "photos"
+              ]
             },
             "description": "Faz upload de uma foto para o MinIO e associa ao imóvel. Requer autenticação (ADMIN)."
           },
@@ -1168,9 +1826,21 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/photos/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "photos", ":id"],
-              "variable": [{ "key": "id", "value": "1" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "photos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
             },
             "description": "Remove uma foto do MinIO e do banco. Requer autenticação (ADMIN)."
           },
@@ -1185,13 +1855,21 @@
         {
           "name": "List Testimonials",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/testimonials",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "testimonials"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "testimonials"
+              ]
             },
             "description": "Lista todos os depoimentos aprovados. Público."
           },
@@ -1201,16 +1879,31 @@
           "name": "Create Testimonial",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"authorName\": \"João Silva\",\n    \"content\": \"Excelente atendimento! Encontrei minha casa dos sonhos.\",\n    \"rating\": 5\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/testimonials",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "testimonials"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "testimonials"
+              ]
             },
             "description": "Cria um novo depoimento. Requer autenticação (ADMIN)."
           },
@@ -1223,9 +1916,21 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/testimonials/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "testimonials", ":id"],
-              "variable": [{ "key": "id", "value": "1" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "testimonials",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
             },
             "description": "Remove um depoimento. Requer autenticação (ADMIN)."
           },

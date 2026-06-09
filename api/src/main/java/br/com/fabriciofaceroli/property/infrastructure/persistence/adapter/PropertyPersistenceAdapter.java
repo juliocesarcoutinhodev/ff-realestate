@@ -2,9 +2,12 @@ package br.com.fabriciofaceroli.property.infrastructure.persistence.adapter;
 
 import br.com.fabriciofaceroli.property.application.port.in.ListAllPropertiesQuery;
 import br.com.fabriciofaceroli.property.application.port.in.ListPropertiesQuery;
+import br.com.fabriciofaceroli.property.application.port.out.CheckPropertySlugPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindActivePropertiesPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindAllPropertiesPort;
+import br.com.fabriciofaceroli.property.application.port.out.FindPropertyByIdPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindPropertyBySlugPort;
+import br.com.fabriciofaceroli.property.application.port.out.SavePropertyPort;
 import br.com.fabriciofaceroli.property.domain.model.CategoryInfo;
 import br.com.fabriciofaceroli.property.domain.model.DealType;
 import br.com.fabriciofaceroli.property.domain.model.Property;
@@ -25,7 +28,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyBySlugPort {
+public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyByIdPort, FindPropertyBySlugPort, SavePropertyPort, CheckPropertySlugPort {
 
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
@@ -45,6 +48,22 @@ public class PropertyPersistenceAdapter implements FindActivePropertiesPort, Fin
         }
         spec = applyCommonFilters(spec, query.categoryId(), query.dealType(), query.featured(), query.city());
         return propertyRepository.findAll(spec, query.pageable()).map(propertyMapper::toProperty);
+    }
+
+    @Override
+    public Optional<Property> findById(UUID id) {
+        return propertyRepository.findById(id).map(propertyMapper::toProperty);
+    }
+
+    @Override
+    public Property save(Property property) {
+        var entity = propertyMapper.toEntity(property);
+        return propertyMapper.toProperty(propertyRepository.save(entity));
+    }
+
+    @Override
+    public boolean existsBySlug(String slug) {
+        return propertyRepository.existsBySlug(slug);
     }
 
     @Override

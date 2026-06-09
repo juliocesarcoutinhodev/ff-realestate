@@ -6,6 +6,7 @@ import br.com.fabriciofaceroli.category.application.port.out.FindCategoryByIdPor
 import br.com.fabriciofaceroli.category.application.port.out.FindCategoryByNamePort;
 import br.com.fabriciofaceroli.category.application.port.out.FindCategoryBySlugPort;
 import br.com.fabriciofaceroli.category.application.port.out.SaveCategoryPort;
+import br.com.fabriciofaceroli.category.application.port.out.ValidateCategoryExistsPort;
 import br.com.fabriciofaceroli.category.domain.model.Category;
 import br.com.fabriciofaceroli.category.infrastructure.persistence.mapper.CategoryMapper;
 import br.com.fabriciofaceroli.category.infrastructure.persistence.repository.CategoryRepository;
@@ -18,7 +19,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryPersistenceAdapter implements FindAllCategoriesPort, FindCategoryByIdPort, FindCategoryBySlugPort, FindCategoryByNamePort, SaveCategoryPort, DeleteCategoryByIdPort {
+public class CategoryPersistenceAdapter implements FindAllCategoriesPort, FindCategoryByIdPort, FindCategoryBySlugPort, FindCategoryByNamePort, SaveCategoryPort, DeleteCategoryByIdPort, ValidateCategoryExistsPort {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -58,5 +59,10 @@ public class CategoryPersistenceAdapter implements FindAllCategoriesPort, FindCa
     @Override
     public void deleteById(UUID id) {
         categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean exists(UUID categoryId) {
+        return categoryRepository.existsById(categoryId);
     }
 }

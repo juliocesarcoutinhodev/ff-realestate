@@ -13,6 +13,8 @@ public interface PropertyRepository extends JpaRepository<PropertyEntity, UUID>,
 
     long countByCategoryId(UUID categoryId);
 
+    boolean existsBySlug(String slug);
+
     @Query(value = """
             SELECT p.id,
                    p.title,
