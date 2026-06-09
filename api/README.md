@@ -116,17 +116,31 @@ br.com.fabriciofaceroli
 
 ## Endpoints
 
+### System
+
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
 | GET | `/api/v1/health` | Não | Health check |
-| POST | `/api/v1/auth/login` | Não | Autenticação — emite `accessToken` + `refresh_token` em cookies HttpOnly |
-| POST | `/api/v1/auth/register` | ADMIN | Criação de novo admin |
+
+### Auth
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| POST | `/api/v1/auth/login` | Não | Autentica e emite `accessToken` + `refresh_token` em cookies HttpOnly |
+| POST | `/api/v1/auth/register` | ADMIN | Registra novo administrador |
 | POST | `/api/v1/auth/refresh` | Não | Renova o access token via cookie `refresh_token` |
-| POST | `/api/v1/auth/logout` | Sim | Invalida o refresh token e limpa os cookies |
-| GET | `/api/v1/properties` | Não | Lista imóveis |
-| GET | `/api/v1/categories` | Não | Lista categorias |
-| GET | `/api/v1/testimonials` | Não | Lista depoimentos |
-| * | demais rotas | Sim | Requer `accessToken` via cookie |
+| GET | `/api/v1/auth/me` | Sim | Valida sessão e retorna dados do usuário autenticado |
+| POST | `/api/v1/auth/logout` | Sim | Revoga o refresh token e limpa os cookies |
+
+### Categories
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/categories` | Não | Lista todas as categorias ordenadas por nome |
+| GET | `/api/v1/categories/{slug}` | Não | Busca categoria por slug |
+| POST | `/api/v1/categories` | ADMIN | Cria nova categoria (slug gerado automaticamente) |
+| PUT | `/api/v1/categories/{id}` | ADMIN | Atualiza nome e/ou descrição (slug regenerado se nome mudar) |
+| DELETE | `/api/v1/categories/{id}` | ADMIN | Remove categoria (rejeita se houver imóveis vinculados) |
 
 Documentação completa: `http://localhost:8080/swagger-ui.html`
 
@@ -155,9 +169,15 @@ Selecione o environment **Local**, execute **Auth › Login** e o token é salvo
 Fluxo recomendado:
 
 1. `Auth › Login` — emite dois cookies (`accessToken` 15 min + `refresh_token` 7 dias) e salva o JWT na variável `accessToken` da coleção
-2. `Auth › Register Admin User` — usa o token salvo para criar novos admins
-3. `Auth › Refresh Token` — renova o access token usando o cookie `refresh_token` (path `/api/v1/auth`)
-4. `Auth › Logout` — invalida o refresh token no banco e limpa os cookies
+2. `Auth › Session Validation (me)` — verifica se o token ainda é válido
+3. `Auth › Register Admin User` — usa o token salvo para criar novos admins
+4. `Auth › Refresh Token` — renova o access token usando o cookie `refresh_token` (path `/api/v1/auth`)
+5. `Auth › Logout` — invalida o refresh token no banco e limpa os cookies
+6. `Categories › List Categories` — lista categorias (público)
+7. `Categories › Create Category` — cria categoria com ADMIN autenticado (slug gerado automaticamente)
+8. `Categories › Get Category by Slug` — busca categoria pelo slug (público)
+9. `Categories › Update Category` — atualiza nome/descrição (slug regenerado se nome mudar)
+10. `Categories › Delete Category` — remove categoria (rejeita se houver imóveis vinculados)
 
 ---
 
