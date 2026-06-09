@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.Principal;
+
 @Tag(name = "Auth", description = "Autenticação e gestão de usuários administrativos")
 public interface AuthApiDocs {
 
@@ -41,6 +43,19 @@ public interface AuthApiDocs {
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Sessão expirada, token ausente, revogado ou não encontrado")
     ResponseEntity<ApiResponse<UserResponse>> refresh(String refreshTokenValue);
+
+    @Operation(
+            summary = "Validar sessão atual",
+            description = "Verifica se o cookie accessToken é válido e retorna os dados do usuário autenticado. Usado pelo frontend para decidir entre chamar /refresh ou redirecionar para login."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Sessão válida",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Cookie ausente ou expirado")
+    ResponseEntity<ApiResponse<UserResponse>> me(Principal principal);
 
     @Operation(
             summary = "Registrar novo usuário administrador",
