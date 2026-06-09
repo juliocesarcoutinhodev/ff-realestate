@@ -55,4 +55,15 @@ public class CookieService {
                 .maxAge(0)
                 .build();
     }
+
+    public ResponseCookie createLogoutRefreshCookie() {
+        return ResponseCookie.from(REFRESH_COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(secure)
+                .sameSite("Strict")
+                .path("/api/v1/auth")
+                .domain(domain)
+                .maxAge(0)
+                .build();
+    }
 }

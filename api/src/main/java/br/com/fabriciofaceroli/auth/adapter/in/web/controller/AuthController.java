@@ -5,6 +5,7 @@ import br.com.fabriciofaceroli.auth.adapter.in.web.dto.RegisterRequest;
 import br.com.fabriciofaceroli.auth.adapter.in.web.dto.UserResponse;
 import br.com.fabriciofaceroli.auth.adapter.in.web.mapper.AuthWebMapper;
 import br.com.fabriciofaceroli.auth.application.port.in.LoginUserPort;
+import br.com.fabriciofaceroli.auth.application.port.in.LogoutPort;
 import br.com.fabriciofaceroli.auth.application.port.in.RefreshSessionPort;
 import br.com.fabriciofaceroli.auth.application.port.in.RegisterUserPort;
 import br.com.fabriciofaceroli.auth.application.port.out.AuthCookiePort;
@@ -27,17 +28,20 @@ public class AuthController implements AuthApiDocs {
 
     private final LoginUserPort loginUserPort;
     private final RefreshSessionPort refreshSessionPort;
+    private final LogoutPort logoutPort;
     private final RegisterUserPort registerUserPort;
     private final AuthWebMapper authWebMapper;
     private final AuthCookiePort authCookiePort;
 
     public AuthController(LoginUserPort loginUserPort,
                           RefreshSessionPort refreshSessionPort,
+                          LogoutPort logoutPort,
                           RegisterUserPort registerUserPort,
                           AuthWebMapper authWebMapper,
                           AuthCookiePort authCookiePort) {
         this.loginUserPort = loginUserPort;
         this.refreshSessionPort = refreshSessionPort;
+        this.logoutPort = logoutPort;
         this.registerUserPort = registerUserPort;
         this.authWebMapper = authWebMapper;
         this.authCookiePort = authCookiePort;
@@ -65,6 +69,17 @@ public class AuthController implements AuthApiDocs {
                 .header(HttpHeaders.SET_COOKIE, authCookiePort.createAuthCookie(result.accessToken()))
                 .header(HttpHeaders.SET_COOKIE, authCookiePort.createRefreshCookie(result.refreshToken()))
                 .body(ApiResponse.success("Sessão renovada com sucesso.", authWebMapper.toResponse(result.user())));
+    }
+
+    @Override
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = "refresh_token", required = false) String refreshTokenValue) {
+        logoutPort.logout(refreshTokenValue);
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, authCookiePort.createLogoutCookie())
+                .header(HttpHeaders.SET_COOKIE, authCookiePort.createLogoutRefreshCookie())
+                .build();
     }
 
     @Override

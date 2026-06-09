@@ -27,4 +27,9 @@ public class CookiePortAdapter implements AuthCookiePort {
     public String createLogoutCookie() {
         return cookieService.createLogoutCookie().toString();
     }
+
+    @Override
+    public String createLogoutRefreshCookie() {
+        return cookieService.createLogoutRefreshCookie().toString();
+    }
 }

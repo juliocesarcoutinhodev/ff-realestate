@@ -334,7 +334,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "logout"]
             },
-            "description": "Invalida o refresh token (cookie HttpOnly) e encerra a sessão."
+            "description": "Revoga o refresh token no banco e invalida ambos os cookies (accessToken e refresh_token) via Max-Age=0. Requer autenticação via cookie accessToken. Idempotente: funciona mesmo sem cookie refresh_token presente."
           },
           "event": [
             {
@@ -342,9 +342,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));",
                   "",
-                  "if (pm.response.code === 200) {",
+                  "if (pm.response.code === 204) {",
                   "    pm.collectionVariables.set('accessToken', '');",
                   "    console.log('accessToken removido da coleção.');",
                   "}"
@@ -354,15 +354,29 @@
           ],
           "response": [
             {
-              "name": "200 OK",
-              "status": "OK",
-              "code": 200,
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/auth/logout" }
+              },
+              "header": [
+                { "key": "Set-Cookie", "value": "accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0" },
+                { "key": "Set-Cookie", "value": "refresh_token=; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=0" }
+              ],
+              "body": ""
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
               "originalRequest": {
                 "method": "POST",
                 "url": { "raw": "{{baseUrl}}/api/v1/auth/logout" }
               },
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"success\": true,\n    \"message\": \"Logout realizado com sucesso.\",\n    \"data\": null\n}"
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
             }
           ]
         }

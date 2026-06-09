@@ -7,4 +7,6 @@ public interface AuthCookiePort {
     String createRefreshCookie(String token);
 
     String createLogoutCookie();
+
+    String createLogoutRefreshCookie();
 }

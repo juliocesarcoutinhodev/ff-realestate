@@ -57,4 +57,13 @@ public interface AuthApiDocs {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado — requer role ADMIN")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "E-mail já cadastrado")
     ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request);
+
+    @Operation(
+            summary = "Logout",
+            description = "Revoga o refresh token no banco e invalida ambos os cookies (accessToken e refresh_token) via Max-Age=0. Idempotente: funciona mesmo sem cookie refresh_token presente."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Logout realizado com sucesso")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Não autenticado")
+    ResponseEntity<Void> logout(String refreshTokenValue);
 }
