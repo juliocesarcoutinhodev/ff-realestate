@@ -549,9 +549,95 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "categories"]
             },
-            "description": "Lista todas as categorias. Público."
+            "description": "Retorna todas as categorias ordenadas por nome ASC. Público — não requer autenticação."
           },
-          "response": []
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Categorias listadas com sucesso.\",\n    \"data\": [\n        {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n            \"name\": \"Apartamento\",\n            \"slug\": \"apartamento\",\n            \"description\": \"Imóveis em condomínio vertical.\"\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Category by Slug",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/:slug",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", ":slug"],
+              "variable": [{ "key": "slug", "value": "apartamento" }]
+            },
+            "description": "Retorna uma categoria pelo slug. Público — não requer autenticação."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.slug).to.be.a('string');",
+                  "    pm.expect(json.data.name).to.be.a('string');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories/apartamento" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Categoria encontrada.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Apartamento\",\n        \"slug\": \"apartamento\",\n        \"description\": \"Imóveis em condomínio vertical.\"\n    }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories/inexistente" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Categoria não encontrada.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Create Category",
@@ -560,7 +646,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Residencial\",\n    \"description\": \"Imóveis residenciais para moradia.\"\n}",
+              "raw": "{\n    \"name\": \"Apartamento\",\n    \"description\": \"Imóveis em condomínio vertical.\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -568,9 +654,84 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "categories"]
             },
-            "description": "Cria uma nova categoria. Requer autenticação (ADMIN)."
+            "description": "Cria uma nova categoria. O slug é gerado automaticamente a partir do nome. Requer autenticação com role ADMIN."
           },
-          "response": []
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.id).to.be.a('string');",
+                  "    pm.expect(json.data.slug).to.be.a('string');",
+                  "    pm.expect(json.data.name).to.be.a('string');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Categoria criada com sucesso.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Apartamento\",\n        \"slug\": \"apartamento\",\n        \"description\": \"Imóveis em condomínio vertical.\"\n    }\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "status": "Bad Request",
+              "code": 400,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"O nome é obrigatório.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "409 Conflict",
+              "status": "Conflict",
+              "code": 409,
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/api/v1/categories" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"Já existe uma categoria com esse nome.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Delete Category",
