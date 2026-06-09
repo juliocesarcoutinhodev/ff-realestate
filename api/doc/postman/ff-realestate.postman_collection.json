@@ -1866,67 +1866,52 @@
     },
     {
       "name": "Photos",
-      "description": "Upload e remoção de fotos de imóveis via MinIO.",
+      "description": "Upload e remoção de fotos de imóveis via MinIO. Requer autenticação (ADMIN).",
       "item": [
         {
-          "name": "Upload Photo",
+          "name": "Upload Photos",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "file",
+                  "key": "files",
                   "type": "file",
-                  "description": "Arquivo de imagem (JPEG, PNG, WebP)"
+                  "description": "Arquivo de imagem (jpg, jpeg, png, webp — máx 10MB por arquivo)"
                 },
                 {
-                  "key": "propertyId",
-                  "value": "1",
-                  "type": "text"
+                  "key": "files",
+                  "type": "file",
+                  "description": "Arquivo adicional (opcional)"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/photos",
+              "raw": "{{baseUrl}}/api/v1/properties/{{propertyId}}/photos",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "properties",
+                "{{propertyId}}",
                 "photos"
               ]
             },
-            "description": "Faz upload de uma foto para o MinIO e associa ao imóvel. Requer autenticação (ADMIN)."
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Photo",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/photos/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "photos",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1"
-                }
-              ]
-            },
-            "description": "Remove uma foto do MinIO e do banco. Requer autenticação (ADMIN)."
+            "description": "Faz upload de múltiplas fotos para um imóvel. A primeira foto vira capa automaticamente se o imóvel ainda não tiver nenhuma. Requer autenticação (ADMIN)."
           },
           "response": []
         }

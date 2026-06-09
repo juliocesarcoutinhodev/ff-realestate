@@ -170,6 +170,18 @@ br.com.fabriciofaceroli
 | PATCH | `/api/v1/properties/{id}/status` | ADMIN | Ativa ou inativa um imóvel sem alterar nenhum outro dado |
 | GET | `/api/v1/admin/properties` | ADMIN | Lista todos os imóveis incluindo inativos; suporta filtro por `status` |
 
+### Photos (admin)
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| POST | `/api/v1/properties/{id}/photos` | ADMIN | Faz upload de múltiplas fotos (`multipart/form-data`, campo `files[]`) |
+
+**Upload de fotos:**
+- Formatos aceitos: `jpg`, `jpeg`, `png`, `webp`
+- Tamanho máximo por arquivo: 10 MB
+- Primeira foto vira capa automaticamente se o imóvel ainda não tiver nenhuma
+- `order_index` atribuído sequencialmente a partir do último existente
+
 **Query params — listagem admin (inclui todos os da listagem pública, mais):**
 
 | Parâmetro | Tipo | Descrição |
@@ -219,6 +231,7 @@ Fluxo recomendado:
 15. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
 16. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
 17. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
+18. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files[]` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN
 
 ---
 
