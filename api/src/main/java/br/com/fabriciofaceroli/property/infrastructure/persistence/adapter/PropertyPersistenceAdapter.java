@@ -1,45 +1,86 @@
 package br.com.fabriciofaceroli.property.infrastructure.persistence.adapter;
 
+import br.com.fabriciofaceroli.property.application.port.in.ListAllPropertiesQuery;
 import br.com.fabriciofaceroli.property.application.port.in.ListPropertiesQuery;
 import br.com.fabriciofaceroli.property.application.port.out.FindActivePropertiesPort;
+import br.com.fabriciofaceroli.property.application.port.out.FindAllPropertiesPort;
+import br.com.fabriciofaceroli.property.application.port.out.FindPropertyBySlugPort;
+import br.com.fabriciofaceroli.property.domain.model.CategoryInfo;
+import br.com.fabriciofaceroli.property.domain.model.DealType;
 import br.com.fabriciofaceroli.property.domain.model.Property;
+import br.com.fabriciofaceroli.property.domain.model.PropertyDetail;
 import br.com.fabriciofaceroli.property.domain.model.PropertyStatus;
 import br.com.fabriciofaceroli.property.infrastructure.persistence.entity.PropertyEntity;
 import br.com.fabriciofaceroli.property.infrastructure.persistence.mapper.PropertyMapper;
+import br.com.fabriciofaceroli.property.infrastructure.persistence.repository.PropertyDetailProjection;
 import br.com.fabriciofaceroli.property.infrastructure.persistence.repository.PropertyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
-public class PropertyPersistenceAdapter implements FindActivePropertiesPort {
+public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyBySlugPort {
 
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
 
     @Override
     public Page<Property> findActive(ListPropertiesQuery query) {
-        Specification<PropertyEntity> spec = Specification.where(
-                (root, q, cb) -> cb.equal(root.get("status"), PropertyStatus.ACTIVE)
-        );
+        Specification<PropertyEntity> spec = (root, q, cb) -> cb.equal(root.get("status"), PropertyStatus.ACTIVE);
+        spec = applyCommonFilters(spec, query.categoryId(), query.dealType(), query.featured(), query.city());
+        return propertyRepository.findAll(spec, query.pageable()).map(propertyMapper::toProperty);
+    }
 
-        if (query.categoryId() != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("categoryId"), query.categoryId()));
+    @Override
+    public Page<Property> findAll(ListAllPropertiesQuery query) {
+        Specification<PropertyEntity> spec = (root, q, cb) -> cb.conjunction();
+        if (query.status() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("status"), query.status()));
         }
-        if (query.dealType() != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("dealType"), query.dealType()));
+        spec = applyCommonFilters(spec, query.categoryId(), query.dealType(), query.featured(), query.city());
+        return propertyRepository.findAll(spec, query.pageable()).map(propertyMapper::toProperty);
+    }
+
+    @Override
+    public Optional<PropertyDetail> findBySlug(String slug) {
+        return propertyRepository.findActiveBySlug(slug).map(this::toPropertyDetail);
+    }
+
+    private Specification<PropertyEntity> applyCommonFilters(
+            Specification<PropertyEntity> spec, UUID categoryId,
+            DealType dealType, Boolean featured, String city) {
+
+        if (categoryId != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("categoryId"), categoryId));
         }
-        if (Boolean.TRUE.equals(query.featured())) {
+        if (dealType != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("dealType"), dealType));
+        }
+        if (Boolean.TRUE.equals(featured)) {
             spec = spec.and((root, q, cb) -> cb.isTrue(root.get("featured")));
         }
-        if (query.city() != null && !query.city().isBlank()) {
+        if (city != null && !city.isBlank()) {
             spec = spec.and((root, q, cb) ->
-                    cb.like(cb.lower(root.get("city")), "%" + query.city().toLowerCase() + "%"));
+                    cb.like(cb.lower(root.get("city")), "%" + city.toLowerCase() + "%"));
         }
+        return spec;
+    }
 
-        return propertyRepository.findAll(spec, query.pageable())
-                .map(propertyMapper::toProperty);
+    private PropertyDetail toPropertyDetail(PropertyDetailProjection p) {
+        var category = new CategoryInfo(p.getCategoryId(), p.getCategoryName(), p.getCategorySlug());
+        return new PropertyDetail(
+                p.getId(), p.getTitle(), p.getSlug(), p.getDescription(),
+                p.getPrice(), p.getArea(), p.getBedrooms(), p.getSuites(),
+                p.getBathrooms(), p.getParkingSpots(), p.getAddress(),
+                p.getNeighborhood(), p.getCity(), p.getState(), p.getZipCode(),
+                p.getDealType(), p.getFeatured(), p.getStatus(), p.getExternalUrl(),
+                category, List.of()
+        );
     }
 }

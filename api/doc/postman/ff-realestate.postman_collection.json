@@ -31,7 +31,13 @@
     {
       "key": "propertyId",
       "value": "",
-      "description": "ID do primeiro imóvel retornado pelo List Properties. Preenchido automaticamente pelo script do List Properties. Reservado para futuros requests de Get/Update/Delete Property.",
+      "description": "ID do primeiro imóvel retornado pelo List Properties. Preenchido automaticamente pelo script do List Properties. Reservado para futuros requests de Update/Delete Property.",
+      "type": "string"
+    },
+    {
+      "key": "propertySlug",
+      "value": "",
+      "description": "Slug do primeiro imóvel retornado pelo List Properties. Preenchido automaticamente pelo script do List Properties. Usado pelo request Get Property by Slug.",
       "type": "string"
     }
   ],
@@ -496,7 +502,9 @@
                   "    if (json.data.content.length > 0) {",
                   "        const first = json.data.content[0];",
                   "        pm.collectionVariables.set('propertyId', first.id);",
+                  "        pm.collectionVariables.set('propertySlug', first.slug);",
                   "        console.log('propertyId salvo na coleção: ' + first.id);",
+                  "        console.log('propertySlug salvo na coleção: ' + first.slug);",
                   "    }",
                   "}"
                 ]
@@ -518,20 +526,69 @@
           ]
         },
         {
-          "name": "Get Property by ID",
+          "name": "Get Property by Slug",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/properties/:id",
+              "raw": "{{baseUrl}}/api/v1/properties/:slug",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "properties", ":id"],
-              "variable": [{ "key": "id", "value": "{{propertyId}}" }]
+              "path": ["api", "v1", "properties", ":slug"],
+              "variable": [{ "key": "slug", "value": "{{propertySlug}}" }]
             },
-            "description": "⚠️ Não implementado ainda. Retornará o detalhe completo de um imóvel pelo ID. Público."
+            "description": "Retorna os detalhes completos de um imóvel ativo pelo slug. Inclui objeto `category` aninhado e array `photos`. Retorna 404 se o slug não existir ou o imóvel estiver inativo. Público — não requer autenticação."
           },
-          "response": []
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    const d = json.data;",
+                  "    pm.expect(d.id).to.be.a('string');",
+                  "    pm.expect(d.slug).to.be.a('string');",
+                  "    pm.expect(d.title).to.be.a('string');",
+                  "    pm.expect(d.status).to.equal('ACTIVE');",
+                  "    pm.expect(d.category).to.be.an('object');",
+                  "    pm.expect(d.category.id).to.be.a('string');",
+                  "    pm.expect(d.category.name).to.be.a('string');",
+                  "    pm.expect(d.category.slug).to.be.a('string');",
+                  "    pm.expect(d.photos).to.be.an('array');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/properties/casa-nova-no-jardim-mirian" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Imóvel encontrado.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"title\": \"Casa Nova no Jardim Mirian\",\n        \"slug\": \"casa-nova-no-jardim-mirian\",\n        \"description\": \"Descrição completa do imóvel...\",\n        \"price\": 450000.00,\n        \"area\": 125.00,\n        \"bedrooms\": 3,\n        \"suites\": 1,\n        \"bathrooms\": 2,\n        \"parkingSpots\": 2,\n        \"address\": \"Rua das Flores, 123\",\n        \"neighborhood\": \"Jardim Mirian\",\n        \"city\": \"São Paulo\",\n        \"state\": \"SP\",\n        \"zipCode\": \"04000-000\",\n        \"dealType\": \"SALE\",\n        \"featured\": false,\n        \"status\": \"ACTIVE\",\n        \"externalUrl\": \"https://www.imoveisxyz.com.br/imovel/173637\",\n        \"category\": {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n            \"name\": \"Casa\",\n            \"slug\": \"casa\"\n        },\n        \"photos\": []\n    }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/api/v1/properties/slug-inexistente" }
+              },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Imóvel não encontrado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Create Property",
@@ -975,6 +1032,97 @@
               },
               "header": [{ "key": "Content-Type", "value": "application/json" }],
               "body": "{\n    \"status\": 409,\n    \"error\": \"Conflict\",\n    \"message\": \"Não é possível excluir uma categoria com imóveis vinculados.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Endpoints administrativos — requerem autenticação com role ADMIN.",
+      "item": [
+        {
+          "name": "Properties",
+          "description": "Gerenciamento administrativo do catálogo de imóveis.",
+          "item": [
+            {
+              "name": "List All Properties",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/properties?page=0&size=12",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "admin", "properties"],
+                  "query": [
+                    { "key": "page", "value": "0", "description": "Número da página (base 0)" },
+                    { "key": "size", "value": "12", "description": "Itens por página" },
+                    { "key": "status", "value": "INACTIVE", "description": "Filtra por status: ACTIVE ou INACTIVE (sem parâmetro = todos)", "disabled": true },
+                    { "key": "categoryId", "value": "", "description": "UUID da categoria", "disabled": true },
+                    { "key": "dealType", "value": "SALE", "description": "Tipo de negócio: SALE ou RENT", "disabled": true },
+                    { "key": "featured", "value": "true", "description": "Filtra apenas destaques", "disabled": true },
+                    { "key": "city", "value": "São Paulo", "description": "Cidade (busca parcial, case-insensitive)", "disabled": true }
+                  ]
+                },
+                "description": "Lista todos os imóveis independente do status (ACTIVE e INACTIVE). Suporta filtro opcional por status e os mesmos filtros da listagem pública. Requer autenticação com role ADMIN."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "if (pm.response.code === 200) {",
+                      "    const json = pm.response.json();",
+                      "    pm.expect(json.success).to.be.true;",
+                      "    pm.expect(json.data).to.be.an('object');",
+                      "    pm.expect(json.data.content).to.be.an('array');",
+                      "    pm.expect(json.data).to.have.property('totalElements');",
+                      "    pm.expect(json.data).to.have.property('totalPages');",
+                      "    pm.expect(json.data).to.have.property('page');",
+                      "    pm.expect(json.data).to.have.property('size');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "status": "OK",
+                  "code": 200,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties?page=0&size=12" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"success\": true,\n    \"message\": \"Imóveis listados com sucesso.\",\n    \"data\": {\n        \"content\": [\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n                \"title\": \"Casa Nova no Jardim Mirian\",\n                \"slug\": \"casa-nova-no-jardim-mirian\",\n                \"price\": 450000.00,\n                \"area\": 125.00,\n                \"bedrooms\": 3,\n                \"suites\": 1,\n                \"bathrooms\": 2,\n                \"parkingSpots\": 2,\n                \"city\": \"São Paulo\",\n                \"neighborhood\": \"Jardim Mirian\",\n                \"dealType\": \"SALE\",\n                \"featured\": false,\n                \"categoryId\": \"550e8400-e29b-41d4-a716-446655440001\",\n                \"externalUrl\": null,\n                \"coverPhoto\": null\n            },\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440002\",\n                \"title\": \"Apartamento Inativo\",\n                \"slug\": \"apartamento-inativo\",\n                \"price\": 280000.00,\n                \"area\": 60.00,\n                \"bedrooms\": 2,\n                \"suites\": 0,\n                \"bathrooms\": 1,\n                \"parkingSpots\": 1,\n                \"city\": \"São Paulo\",\n                \"neighborhood\": \"Vila Mariana\",\n                \"dealType\": \"SALE\",\n                \"featured\": false,\n                \"categoryId\": \"550e8400-e29b-41d4-a716-446655440003\",\n                \"externalUrl\": null,\n                \"coverPhoto\": null\n            }\n        ],\n        \"totalElements\": 2,\n        \"totalPages\": 1,\n        \"page\": 0,\n        \"size\": 12\n    }\n}"
+                },
+                {
+                  "name": "401 Unauthorized",
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                },
+                {
+                  "name": "403 Forbidden",
+                  "status": "Forbidden",
+                  "code": 403,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                }
+              ]
             }
           ]
         }

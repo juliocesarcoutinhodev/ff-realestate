@@ -142,13 +142,14 @@ br.com.fabriciofaceroli
 | PUT | `/api/v1/categories/{id}` | ADMIN | Atualiza nome e/ou descrição (slug regenerado se nome mudar) |
 | DELETE | `/api/v1/categories/{id}` | ADMIN | Remove categoria (rejeita se houver imóveis vinculados) |
 
-### Properties
+### Properties (público)
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
 | GET | `/api/v1/properties` | Não | Lista imóveis ativos (`status=ACTIVE`) com filtros e paginação |
+| GET | `/api/v1/properties/{slug}` | Não | Retorna detalhes completos de um imóvel ativo pelo slug (inclui categoria e array de fotos) |
 
-**Query params disponíveis:**
+**Query params — listagem pública:**
 
 | Parâmetro | Tipo | Descrição |
 |---|---|---|
@@ -158,6 +159,18 @@ br.com.fabriciofaceroli
 | `city` | string | Filtra por cidade (busca parcial, case-insensitive) |
 | `page` | int | Número da página — base 0 (padrão: `0`) |
 | `size` | int | Itens por página (padrão: `12`) |
+
+### Properties (admin)
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/admin/properties` | ADMIN | Lista todos os imóveis incluindo inativos; suporta filtro por `status` |
+
+**Query params — listagem admin (inclui todos os da listagem pública, mais):**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `status` | `ACTIVE` \| `INACTIVE` | Filtra por status (sem parâmetro = retorna todos) |
 
 Documentação completa: `http://localhost:8080/swagger-ui.html`
 
@@ -195,7 +208,9 @@ Fluxo recomendado:
 8. `Categories › Get Category by Slug` — busca categoria pelo slug (público)
 9. `Categories › Update Category` — atualiza nome/descrição (slug regenerado se nome mudar)
 10. `Categories › Delete Category` — remove categoria (rejeita se houver imóveis vinculados)
-11. `Properties › List Properties` — lista imóveis ativos com filtros opcionais (`categoryId`, `dealType`, `featured`, `city`) e paginação
+11. `Properties › List Properties` — lista imóveis ativos com filtros opcionais (`categoryId`, `dealType`, `featured`, `city`) e paginação; salva `propertySlug` automaticamente
+12. `Properties › Get Property by Slug` — retorna detalhes completos do primeiro imóvel listado (categoria aninhada + array de fotos)
+13. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
 
 ---
 
