@@ -12,6 +12,7 @@ import br.com.fabriciofaceroli.auth.application.port.out.AuthCookiePort;
 import br.com.fabriciofaceroli.shared.exception.UnauthorizedException;
 import br.com.fabriciofaceroli.shared.response.ApiResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController implements AuthApiDocs {
 
     private final LoginUserPort loginUserPort;
@@ -32,20 +34,6 @@ public class AuthController implements AuthApiDocs {
     private final RegisterUserPort registerUserPort;
     private final AuthWebMapper authWebMapper;
     private final AuthCookiePort authCookiePort;
-
-    public AuthController(LoginUserPort loginUserPort,
-                          RefreshSessionPort refreshSessionPort,
-                          LogoutPort logoutPort,
-                          RegisterUserPort registerUserPort,
-                          AuthWebMapper authWebMapper,
-                          AuthCookiePort authCookiePort) {
-        this.loginUserPort = loginUserPort;
-        this.refreshSessionPort = refreshSessionPort;
-        this.logoutPort = logoutPort;
-        this.registerUserPort = registerUserPort;
-        this.authWebMapper = authWebMapper;
-        this.authCookiePort = authCookiePort;
-    }
 
     @Override
     @PostMapping("/login")
