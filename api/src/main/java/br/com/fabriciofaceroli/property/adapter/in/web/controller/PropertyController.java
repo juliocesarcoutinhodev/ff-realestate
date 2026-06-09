@@ -3,12 +3,16 @@ package br.com.fabriciofaceroli.property.adapter.in.web.controller;
 import br.com.fabriciofaceroli.property.adapter.in.web.dto.CreatePropertyRequest;
 import br.com.fabriciofaceroli.property.adapter.in.web.dto.PropertyDetailResponse;
 import br.com.fabriciofaceroli.property.adapter.in.web.dto.PropertySummaryResponse;
+import br.com.fabriciofaceroli.property.adapter.in.web.dto.TogglePropertyStatusRequest;
 import br.com.fabriciofaceroli.property.adapter.in.web.dto.UpdatePropertyRequest;
 import br.com.fabriciofaceroli.property.adapter.in.web.mapper.PropertyWebMapper;
 import br.com.fabriciofaceroli.property.application.port.in.CreatePropertyPort;
+import br.com.fabriciofaceroli.property.application.port.in.DeletePropertyPort;
 import br.com.fabriciofaceroli.property.application.port.in.GetPropertyBySlugPort;
 import br.com.fabriciofaceroli.property.application.port.in.ListPropertiesPort;
 import br.com.fabriciofaceroli.property.application.port.in.ListPropertiesQuery;
+import br.com.fabriciofaceroli.property.application.port.in.TogglePropertyStatusCommand;
+import br.com.fabriciofaceroli.property.application.port.in.TogglePropertyStatusPort;
 import br.com.fabriciofaceroli.property.application.port.in.UpdatePropertyPort;
 import br.com.fabriciofaceroli.property.domain.model.DealType;
 import br.com.fabriciofaceroli.shared.response.ApiResponse;
@@ -19,7 +23,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,6 +45,8 @@ public class PropertyController implements PropertyApiDocs {
     private final GetPropertyBySlugPort getPropertyBySlugPort;
     private final CreatePropertyPort createPropertyPort;
     private final UpdatePropertyPort updatePropertyPort;
+    private final DeletePropertyPort deletePropertyPort;
+    private final TogglePropertyStatusPort togglePropertyStatusPort;
     private final PropertyWebMapper propertyWebMapper;
 
     @Override
@@ -80,5 +88,23 @@ public class PropertyController implements PropertyApiDocs {
             @Valid @RequestBody UpdatePropertyRequest request) {
         var property = updatePropertyPort.update(propertyWebMapper.toUpdateCommand(id, request));
         return ResponseEntity.ok(ApiResponse.success("Imóvel atualizado com sucesso.", propertyWebMapper.toSummaryResponse(property)));
+    }
+
+    @Override
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        deletePropertyPort.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<PropertySummaryResponse>> toggleStatus(
+            @PathVariable UUID id,
+            @Valid @RequestBody TogglePropertyStatusRequest request) {
+        var property = togglePropertyStatusPort.toggle(new TogglePropertyStatusCommand(id, request.status()));
+        return ResponseEntity.ok(ApiResponse.success("Status atualizado com sucesso.", propertyWebMapper.toSummaryResponse(property)));
     }
 }

@@ -3,6 +3,7 @@ package br.com.fabriciofaceroli.property.infrastructure.persistence.adapter;
 import br.com.fabriciofaceroli.property.application.port.in.ListAllPropertiesQuery;
 import br.com.fabriciofaceroli.property.application.port.in.ListPropertiesQuery;
 import br.com.fabriciofaceroli.property.application.port.out.CheckPropertySlugPort;
+import br.com.fabriciofaceroli.property.application.port.out.DeletePropertyByIdPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindActivePropertiesPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindAllPropertiesPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindPropertyByIdPort;
@@ -28,7 +29,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyByIdPort, FindPropertyBySlugPort, SavePropertyPort, CheckPropertySlugPort {
+public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyByIdPort, FindPropertyBySlugPort, SavePropertyPort, CheckPropertySlugPort, DeletePropertyByIdPort {
 
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
@@ -53,6 +54,11 @@ public class PropertyPersistenceAdapter implements FindActivePropertiesPort, Fin
     @Override
     public Optional<Property> findById(UUID id) {
         return propertyRepository.findById(id).map(propertyMapper::toProperty);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        propertyRepository.deleteById(id);
     }
 
     @Override
