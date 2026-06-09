@@ -2,6 +2,7 @@ package br.com.fabriciofaceroli.category.adapter.in.web.controller;
 
 import br.com.fabriciofaceroli.category.adapter.in.web.dto.CategoryResponse;
 import br.com.fabriciofaceroli.category.adapter.in.web.dto.CreateCategoryRequest;
+import br.com.fabriciofaceroli.category.adapter.in.web.dto.UpdateCategoryRequest;
 import br.com.fabriciofaceroli.shared.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Categories", description = "Categorias de imóveis")
 public interface CategoryApiDocs {
@@ -59,4 +61,38 @@ public interface CategoryApiDocs {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado — requer role ADMIN")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Já existe uma categoria com esse nome")
     ResponseEntity<ApiResponse<CategoryResponse>> create(@Valid @RequestBody CreateCategoryRequest request);
+
+    @Operation(
+            summary = "Atualizar categoria",
+            description = "Atualiza nome e/ou descrição de uma categoria existente. O slug é regenerado automaticamente se o nome mudar. Requer autenticação com role ADMIN."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Categoria atualizada com sucesso",
+            content = @Content(schema = @Schema(implementation = CategoryResponse.class))
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Não autenticado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado — requer role ADMIN")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Já existe uma categoria com esse nome")
+    ResponseEntity<ApiResponse<CategoryResponse>> update(
+            @Parameter(description = "ID da categoria", example = "550e8400-e29b-41d4-a716-446655440000") UUID id,
+            @Valid @RequestBody UpdateCategoryRequest request
+    );
+
+    @Operation(
+            summary = "Excluir categoria",
+            description = "Remove uma categoria existente. Rejeita a exclusão se houver imóveis vinculados. Requer autenticação com role ADMIN."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Categoria excluída com sucesso")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Não autenticado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado — requer role ADMIN")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Categoria possui imóveis vinculados")
+    ResponseEntity<Void> delete(
+            @Parameter(description = "ID da categoria", example = "550e8400-e29b-41d4-a716-446655440000") UUID id
+    );
 }
