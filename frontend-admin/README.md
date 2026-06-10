@@ -1,6 +1,6 @@
-# FF Real Estate — Admin Panel
+# FF Corretor — Admin Panel
 
-Painel administrativo do sistema FF Real Estate, desenvolvido em Angular 21 com o template [Sakai NG](https://github.com/primefaces/sakai-ng) (PrimeNG). Consome a API REST da aplicação backend `ff-realestate`.
+Painel administrativo do sistema FF Corretor, desenvolvido em Angular 21 com o template [Sakai NG](https://github.com/primefaces/sakai-ng) (PrimeNG). Consome a API REST da aplicação backend `ff-realestate`.
 
 ## Stack
 
@@ -39,6 +39,8 @@ Acesse `http://localhost:4200`. O servidor recarrega automaticamente ao salvar a
 
 ```bash
 npm run build
+# equivale a: ng build --configuration=production
+# troca automaticamente environment.ts → environment.production.ts
 ```
 
 Os artefatos são gerados em `dist/ff-realestate-admin/`.
@@ -57,20 +59,39 @@ npm run format
 # Prettier — formata todos os arquivos .ts, .html, .js
 ```
 
-## Estrutura de pastas relevante
+## Environments
+
+| Arquivo | Ambiente | API base URL |
+|---|---|---|
+| `src/environments/environment.ts` | desenvolvimento | `http://localhost:8080/api/v1` |
+| `src/environments/environment.production.ts` | produção | `https://api.fabriciofaceroli.com.br/api/v1` |
+
+O `angular.json` está configurado com `fileReplacements` para trocar o environment automaticamente no build de produção.
+
+## Estrutura de pastas
 
 ```text
 src/
-├── app/
-│   ├── layout/          → componentes de layout (topbar, sidebar, menu, footer)
-│   ├── pages/
-│   │   ├── auth/        → login, acesso negado, erro
-│   │   ├── dashboard/   → widgets do painel principal
-│   │   └── ...          → demais módulos administrativos
-│   ├── app.routes.ts
-│   └── app.config.ts
-└── assets/
-    └── layout/          → estilos SCSS do template Sakai
+├── environments/
+│   ├── environment.ts               → dev
+│   └── environment.production.ts   → prod
+└── app/
+    ├── layout/                      → topbar, sidebar, menu, footer (Sakai NG)
+    ├── core/
+    │   ├── interceptors/            → HTTP interceptors (auth, error)
+    │   ├── guards/                  → route guards
+    │   ├── services/                → serviços globais (ex: product.service — exemplo Sakai)
+    │   └── models/                  → interfaces e tipos globais
+    ├── shared/
+    │   ├── components/              → componentes reutilizáveis (ex: notfound)
+    │   └── pipes/                   → pipes customizados
+    └── features/
+        ├── auth/                    → login, acesso negado, erro
+        ├── dashboard/               → painel principal com widgets de exemplo (Sakai NG)
+        ├── properties/              → gestão de imóveis
+        ├── categories/              → gestão de categorias
+        ├── photos/                  → gestão de fotos
+        └── testimonials/            → gestão de depoimentos
 ```
 
 ## Recursos adicionais
