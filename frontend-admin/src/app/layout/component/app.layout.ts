@@ -5,12 +5,14 @@ import { AppTopbar } from './app.topbar';
 import { AppSidebar } from './app.sidebar';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { Toast } from 'primeng/toast';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, Toast],
     template: `<div class="layout-wrapper" [ngClass]="containerClass()">
+        <p-toast />
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">
