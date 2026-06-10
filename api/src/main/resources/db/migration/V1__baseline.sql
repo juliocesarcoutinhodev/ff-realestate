@@ -1,0 +1,2 @@
+-- Baseline migration: proves Flyway is configured and executing correctly.
+-- All future migrations follow the naming convention: V{n}__{description_in_snake_case}.sql
