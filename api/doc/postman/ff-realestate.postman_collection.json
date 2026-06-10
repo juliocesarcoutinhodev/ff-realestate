@@ -2058,59 +2058,84 @@
       "description": "Gerenciamento de depoimentos de clientes.",
       "item": [
         {
-          "name": "List Testimonials",
+          "name": "Submit Testimonial",
           "request": {
-            "auth": {
-              "type": "noauth"
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientName\": \"João Silva\",\n  \"text\": \"Excelente atendimento! O Fabrício foi muito profissional.\",\n  \"rating\": 5,\n  \"propertyId\": \"{{propertyId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "method": "GET",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/testimonials",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "testimonials"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"]
             },
-            "description": "Lista todos os depoimentos aprovados. Público."
+            "description": "Envia um depoimento público. Não requer autenticação. propertyId é opcional — se informado valida se o imóvel existe. Retorna 201 com id, clientName, rating e status=PENDING."
           },
           "response": []
         },
         {
-          "name": "Create Testimonial",
+          "name": "List Testimonials",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"authorName\": \"João Silva\",\n    \"content\": \"Excelente atendimento! Encontrei minha casa dos sonhos.\",\n    \"rating\": 5\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/testimonials",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "testimonials"
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"],
+              "query": [
+                {
+                  "key": "propertyId",
+                  "value": "{{propertyId}}",
+                  "description": "Filtrar por imóvel (opcional)",
+                  "disabled": true
+                }
               ]
             },
-            "description": "Cria um novo depoimento. Requer autenticação (ADMIN)."
+            "description": "Lista depoimentos com status APPROVED, ordenados por data de criação (mais recentes primeiro). Não requer autenticação. Ative o query param propertyId para filtrar por imóvel específico. Retorna 200 com array vazio se não houver depoimentos aprovados."
+          },
+          "response": []
+        },
+        {
+          "name": "List Testimonials (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/testimonials?page=0&size=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "testimonials"],
+              "query": [
+                { "key": "status", "value": "PENDING", "description": "Filtrar por status (PENDING, APPROVED, REJECTED). Opcional — sem filtro retorna todos.", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "12" }
+              ]
+            },
+            "description": "Lista todos os depoimentos (qualquer status), paginados, ordenados por created_at DESC. Requer autenticação (ADMIN). Ative o query param status para filtrar."
+          },
+          "response": []
+        },
+        {
+          "name": "Review Testimonial",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/testimonials/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "testimonials", ":id", "status"],
+              "variable": [{ "key": "id", "value": "{{testimonialId}}" }]
+            },
+            "description": "Aprova ou rejeita um depoimento PENDING. Aceita status APPROVED ou REJECTED. Retorna 409 se o depoimento já foi revisado. Requer autenticação (ADMIN)."
           },
           "response": []
         },
@@ -2120,24 +2145,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/testimonials/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "testimonials",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1"
-                }
-              ]
+              "raw": "{{baseUrl}}/api/v1/admin/testimonials/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "testimonials", ":id"],
+              "variable": [{ "key": "id", "value": "{{testimonialId}}" }]
             },
-            "description": "Remove um depoimento. Requer autenticação (ADMIN)."
+            "description": "Remove permanentemente um depoimento do banco. Retorna 204 No Content. Retorna 404 se não encontrado. Requer autenticação (ADMIN)."
           },
           "response": []
         }

@@ -208,6 +208,41 @@ br.com.fabriciofaceroli
 |---|---|---|
 | `status` | `ACTIVE` \| `INACTIVE` | Filtra por status (sem parâmetro = retorna todos) |
 
+### Testimonials (público)
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/testimonials` | Não | Lista depoimentos aprovados (`status=APPROVED`), ordenados por `created_at DESC` |
+| POST | `/api/v1/testimonials` | Não | Envia depoimento; criado com `status=PENDING`, aguarda aprovação do admin |
+
+**Query params — listagem pública:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `propertyId` | UUID | Filtra depoimentos de um imóvel específico (opcional) |
+
+### Testimonials (admin)
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/admin/testimonials` | ADMIN | Lista todos os depoimentos independente do status, paginados, ordenados por `created_at DESC` |
+| PATCH | `/api/v1/admin/testimonials/{id}/status` | ADMIN | Aprova (`APPROVED`) ou rejeita (`REJECTED`) um depoimento `PENDING`; retorna 409 se já revisado |
+| DELETE | `/api/v1/admin/testimonials/{id}` | ADMIN | Remove permanentemente um depoimento |
+
+**Query params — listagem admin:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `status` | `PENDING` \| `APPROVED` \| `REJECTED` | Filtra por status (sem parâmetro = retorna todos) |
+| `page` | int | Número da página — base 0 (padrão: `0`) |
+| `size` | int | Itens por página (padrão: `12`) |
+
+**Fluxo de moderação:**
+- Cliente envia depoimento via `POST /api/v1/testimonials` → status `PENDING`
+- Admin revisa via `PATCH /api/v1/admin/testimonials/{id}/status` → `APPROVED` ou `REJECTED`
+- Apenas depoimentos `APPROVED` aparecem na listagem pública
+- Um depoimento já revisado (não `PENDING`) retorna 409 se revisado novamente
+
 Documentação completa: `http://localhost:8080/swagger-ui.html`
 
 ---
@@ -256,6 +291,11 @@ Fluxo recomendado:
 20. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
 21. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
 22. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
+23. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
+24. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
+25. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
+26. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
+27. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
 
 ---
 
