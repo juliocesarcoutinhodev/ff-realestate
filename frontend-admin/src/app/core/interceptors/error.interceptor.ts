@@ -1,46 +1,41 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContext, HttpContextToken, HttpErrorResponse, HttpEventType, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { catchError, throwError } from 'rxjs';
+import { catchError, tap, throwError } from 'rxjs';
+import { ApiResponse } from '@/app/core/models/api-response.model';
+import { ErrorResponse } from '@/app/core/models/error-response.model';
+
+export const SKIP_401_REDIRECT = new HttpContextToken<boolean>(() => false);
+
+export const skipAuthRedirect = (): HttpContext => new HttpContext().set(SKIP_401_REDIRECT, true);
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const router = inject(Router);
     const messageService = inject(MessageService);
 
     return next(req).pipe(
-        catchError((error: HttpErrorResponse) => {
-            switch (error.status) {
-                case 401:
-                    router.navigate(['/auth/login']);
-                    break;
-                case 403:
-                    router.navigate(['/403']);
-                    break;
-                case 404:
-                    messageService.add({
-                        severity: 'error',
-                        summary: 'Erro',
-                        detail: 'Recurso não encontrado.'
-                    });
-                    break;
-                case 409: {
-                    const body = error.error as { message?: string };
+        tap((event) => {
+            if (event.type === HttpEventType.Response && event instanceof HttpResponse && req.method !== 'GET') {
+                const body = event.body as ApiResponse<unknown> | null;
 
-                    messageService.add({
-                        severity: 'error',
-                        summary: 'Conflito',
-                        detail: body?.message ?? 'Conflito ao processar a requisição.'
-                    });
-                    break;
+                if (body?.message) {
+                    messageService.add({ severity: 'success', summary: 'Sucesso', detail: body.message });
                 }
-                case 500:
-                    messageService.add({
-                        severity: 'error',
-                        summary: 'Erro',
-                        detail: 'Erro interno. Tente novamente mais tarde.'
-                    });
-                    break;
+            }
+        }),
+        catchError((error) => {
+            if (error instanceof HttpErrorResponse) {
+                const body = error.error as ErrorResponse | null;
+                const detail = body?.message ?? 'Erro inesperado. Tente novamente.';
+
+                if (error.status === 401 && !req.context.get(SKIP_401_REDIRECT)) {
+                    router.navigate(['/auth/login']);
+                } else if (error.status === 403) {
+                    router.navigate(['/auth/access']);
+                } else if (error.status !== 401) {
+                    messageService.add({ severity: 'error', summary: 'Erro', detail });
+                }
             }
 
             return throwError(() => error);

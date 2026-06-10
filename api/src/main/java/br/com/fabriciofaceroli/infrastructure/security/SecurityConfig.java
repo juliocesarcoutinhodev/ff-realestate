@@ -4,6 +4,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 
 @Configuration
 @EnableWebSecurity
@@ -57,6 +63,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, ex) -> {
+                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                            var timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now());
+                            response.getWriter().write(
+                                    "{\"success\":false,\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Não autorizado.\",\"timestamp\":\"%s\"}"
+                                            .formatted(timestamp)
+                            );
+                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
