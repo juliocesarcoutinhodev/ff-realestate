@@ -8,9 +8,7 @@ export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
-        children: [
-            { path: 'dashboard', component: Dashboard }
-        ]
+        children: [{ path: 'dashboard', component: Dashboard }]
     },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/features/auth/auth.routes') },
