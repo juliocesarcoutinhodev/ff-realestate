@@ -28,17 +28,22 @@ export class AppMenu {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
             },
             {
-                label: 'Pages',
+                label: 'Cadastros',
                 items: [
                     {
-                        label: 'Empty',
-                        icon: 'pi pi-fw pi-circle',
-                        routerLink: ['/pages/empty']
+                        label: 'Imóveis',
+                        icon: 'pi pi-fw pi-building',
+                        routerLink: ['/properties']
                     },
                     {
-                        label: 'Not Found',
-                        icon: 'pi pi-fw pi-exclamation-circle',
-                        routerLink: ['/notfound']
+                        label: 'Categorias',
+                        icon: 'pi pi-fw pi-tags',
+                        routerLink: ['/categories']
+                    },
+                    {
+                        label: 'Depoimentos',
+                        icon: 'pi pi-fw pi-comments',
+                        routerLink: ['/testimonials']
                     }
                 ]
             }
