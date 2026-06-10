@@ -1,5 +1,6 @@
 package br.com.fabriciofaceroli.photo.adapter.in.web.controller;
 
+import br.com.fabriciofaceroli.photo.adapter.in.web.dto.PhotoOrderItemRequest;
 import br.com.fabriciofaceroli.photo.adapter.in.web.dto.PhotoUploadResponse;
 import br.com.fabriciofaceroli.shared.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,5 +67,38 @@ public interface PhotoApiDocs {
     ResponseEntity<List<PhotoUploadResponse>> setCover(
             @Parameter(description = "ID do imóvel", required = true) UUID propertyId,
             @Parameter(description = "ID da foto a ser definida como capa", required = true) UUID photoId
+    );
+
+    @Operation(summary = "Reordena fotos", description = "Atualiza a ordem de exibição das fotos do imóvel em uma única transação. Envie todos os IDs das fotos com seus novos orderIndex. Requer autenticação (ADMIN).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de fotos com a nova ordem aplicada",
+                    content = @Content(schema = @Schema(implementation = PhotoUploadResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Payload inválido (id nulo ou orderIndex negativo)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Imóvel não encontrado ou foto não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<List<PhotoUploadResponse>> reorderPhotos(
+            @Parameter(description = "ID do imóvel", required = true) UUID propertyId,
+            @Parameter(description = "Array com id e novo orderIndex de cada foto", required = true) @Valid List<PhotoOrderItemRequest> items
+    );
+
+    @Operation(summary = "Remove foto", description = "Remove uma foto específica de um imóvel do MinIO e do banco. Se a foto removida era a capa, a foto com menor order_index assume automaticamente. As fotos restantes são reordenadas sequencialmente. Requer autenticação (ADMIN).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Foto removida com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Foto não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<Void> deletePhoto(
+            @Parameter(description = "ID do imóvel", required = true) UUID propertyId,
+            @Parameter(description = "ID da foto a ser removida", required = true) UUID photoId
     );
 }

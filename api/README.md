@@ -176,6 +176,9 @@ br.com.fabriciofaceroli
 |---|---|---|---|
 | GET | `/api/v1/properties/{id}/photos` | Não | Lista todas as fotos do imóvel ordenadas por capa primeiro e depois por `order_index` |
 | POST | `/api/v1/properties/{id}/photos` | ADMIN | Faz upload de múltiplas fotos (`multipart/form-data`, campo `files`) |
+| PATCH | `/api/v1/properties/{id}/photos/{photoId}/cover` | ADMIN | Define a foto de capa — `cover=true` na selecionada, `cover=false` nas demais |
+| PATCH | `/api/v1/properties/{id}/photos/order` | ADMIN | Reordena fotos em transação única; body: `[{ "id": "uuid", "orderIndex": 0 }, ...]` |
+| DELETE | `/api/v1/properties/{id}/photos/{photoId}` | ADMIN | Remove foto do MinIO e do banco; promove nova capa se a removida era a capa |
 
 **Listagem de fotos:**
 - A foto com `cover=true` sempre retorna primeiro, independente do `order_index`
@@ -186,6 +189,18 @@ br.com.fabriciofaceroli
 - Tamanho máximo por arquivo: 10 MB
 - Primeira foto vira capa automaticamente se o imóvel ainda não tiver nenhuma
 - `order_index` atribuído sequencialmente a partir do último existente
+
+**Definir capa:**
+- Retorna `200 OK` com a lista atualizada de fotos
+
+**Reordenar fotos:**
+- Fotos não incluídas no array mantêm o `order_index` atual
+- Retorna `200 OK` com a lista reordenada
+
+**Remover foto:**
+- Se a foto removida era a capa, a foto com menor `order_index` assume automaticamente
+- As fotos restantes são reordenadas sequencialmente (0, 1, 2…)
+- Retorna `204 No Content`
 
 **Query params — listagem admin (inclui todos os da listagem pública, mais):**
 
@@ -236,8 +251,20 @@ Fluxo recomendado:
 15. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
 16. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
 17. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
-18. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN
+18. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
 19. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
+20. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
+21. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
+22. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
+
+---
+
+## Pendências técnicas
+
+| Item | Localização | Descrição |
+|---|---|---|
+| `PropertyPhotosStubAdapter` | `property/infrastructure/persistence/adapter/` | No-op ao deletar imóvel. Substituir por adapter real no módulo `photo` que delete registros do banco via `PropertyPhotoRepository.deleteByPropertyId()` e os arquivos do MinIO. |
+| `PropertyCountAdapter` | `property/infrastructure/persistence/adapter/` | Retorna `0` para contagem de imóveis por categoria. Substituir quando a query de agregação for implementada no `PropertyRepository`. |
 
 ---
 
