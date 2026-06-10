@@ -1936,6 +1936,40 @@
             "description": "Faz upload de múltiplas fotos para um imóvel. A primeira foto vira capa automaticamente se o imóvel ainda não tiver nenhuma. Requer autenticação (ADMIN)."
           },
           "response": []
+        },
+        {
+          "name": "Set Cover Photo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/{{propertyId}}/photos/{{photoId}}/cover",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties",
+                "{{propertyId}}",
+                "photos",
+                "{{photoId}}",
+                "cover"
+              ]
+            },
+            "description": "Define a foto de capa do imóvel. A foto selecionada recebe cover=true e todas as demais recebem cover=false. Retorna a lista atualizada de fotos. Requer autenticação (ADMIN)."
+          },
+          "response": []
         }
       ]
     },

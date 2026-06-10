@@ -50,4 +50,20 @@ public interface PhotoApiDocs {
             @Parameter(description = "ID do imóvel", required = true) UUID propertyId,
             @Parameter(description = "Arquivos de imagem (jpg, jpeg, png, webp)", required = true) List<MultipartFile> files
     );
+
+    @Operation(summary = "Define foto de capa", description = "Define a foto de capa do imóvel. A foto selecionada recebe cover=true e todas as demais recebem cover=false.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista atualizada de fotos do imóvel",
+                    content = @Content(schema = @Schema(implementation = PhotoUploadResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Imóvel não encontrado ou foto não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<List<PhotoUploadResponse>> setCover(
+            @Parameter(description = "ID do imóvel", required = true) UUID propertyId,
+            @Parameter(description = "ID da foto a ser definida como capa", required = true) UUID photoId
+    );
 }

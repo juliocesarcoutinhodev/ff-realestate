@@ -3,6 +3,7 @@ package br.com.fabriciofaceroli.photo.adapter.in.web.controller;
 import br.com.fabriciofaceroli.photo.adapter.in.web.dto.PhotoUploadResponse;
 import br.com.fabriciofaceroli.photo.adapter.in.web.mapper.PhotoWebMapper;
 import br.com.fabriciofaceroli.photo.application.port.in.ListPhotosPort;
+import br.com.fabriciofaceroli.photo.application.port.in.SetCoverPhotoPort;
 import br.com.fabriciofaceroli.photo.application.port.in.UploadPhotosCommand;
 import br.com.fabriciofaceroli.photo.application.port.in.UploadPhotosPort;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,7 @@ public class PhotoController implements PhotoApiDocs {
 
     private final UploadPhotosPort uploadPhotosPort;
     private final ListPhotosPort listPhotosPort;
+    private final SetCoverPhotoPort setCoverPhotoPort;
     private final PhotoWebMapper photoWebMapper;
 
     @Override
@@ -46,5 +49,15 @@ public class PhotoController implements PhotoApiDocs {
         var command = new UploadPhotosCommand(propertyId, photoWebMapper.toPhotoFiles(files));
         var photos = uploadPhotosPort.upload(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(photoWebMapper.toResponseList(photos));
+    }
+
+    @Override
+    @PatchMapping("/{photoId}/cover")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<List<PhotoUploadResponse>> setCover(
+            @PathVariable UUID propertyId,
+            @PathVariable UUID photoId) {
+        var photos = setCoverPhotoPort.setCover(propertyId, photoId);
+        return ResponseEntity.ok(photoWebMapper.toResponseList(photos));
     }
 }
