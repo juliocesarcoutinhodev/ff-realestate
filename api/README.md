@@ -221,6 +221,23 @@ br.com.fabriciofaceroli
 |---|---|---|
 | `propertyId` | UUID | Filtra depoimentos de um imóvel específico (opcional) |
 
+### Dashboard (admin)
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/admin/dashboard` | ADMIN | Retorna contadores e listas resumidas para o painel administrativo |
+
+**Resposta — campos:**
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `totalActiveProperties` | long | Total de imóveis com `status=ACTIVE` |
+| `totalInactiveProperties` | long | Total de imóveis com `status=INACTIVE` |
+| `totalCategories` | long | Total de categorias cadastradas |
+| `totalPendingTestimonials` | long | Total de depoimentos com `status=PENDING` |
+| `recentProperties` | array | Últimos 5 imóveis cadastrados (id, title, slug, price, status, dealType, createdAt) |
+| `pendingTestimonials` | array | Últimos 5 depoimentos pendentes (id, clientName, text, rating, createdAt) |
+
 ### Testimonials (admin)
 
 | Método | Rota | Auth | Descrição |
@@ -281,21 +298,22 @@ Fluxo recomendado:
 10. `Categories › Delete Category` — remove categoria (rejeita se houver imóveis vinculados)
 11. `Properties › List Properties` — lista imóveis ativos com filtros opcionais (`categoryId`, `dealType`, `featured`, `city`) e paginação; salva `propertySlug` automaticamente
 12. `Properties › Get Property by Slug` — retorna detalhes completos do primeiro imóvel listado (categoria aninhada + array de fotos)
-13. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
-14. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
-15. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
-16. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
-17. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
-18. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
-19. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
-20. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
-21. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
-22. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
-23. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
-24. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
-25. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
-26. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
-27. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
+13. `Admin › Dashboard › Get Dashboard Summary` — retorna contadores de imóveis, categorias e depoimentos pendentes, além dos 5 imóveis e 5 depoimentos mais recentes; requer token ADMIN
+14. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
+15. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
+16. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
+17. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
+18. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
+19. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
+20. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
+21. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
+22. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
+23. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
+24. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
+25. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
+26. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
+27. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
+28. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
 
 ---
 

@@ -1,47 +1,54 @@
-import { Component, inject, signal } from '@angular/core';
-import { RippleModule } from 'primeng/ripple';
+import { Component, input } from '@angular/core';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { CommonModule } from '@angular/common';
-import { Product, ProductService } from '@/app/core/services/product.service';
+import { TagModule } from 'primeng/tag';
+import { RouterLink } from '@angular/router';
+import { RecentProperty } from '@/app/core/models';
 
 @Component({
     standalone: true,
     selector: 'app-recent-sales-widget',
-    imports: [CommonModule, TableModule, ButtonModule, RippleModule],
-    template: `<div class="card mb-8!">
-        <div class="font-semibold text-xl mb-4">Recent Sales</div>
-        <p-table [value]="products()" [paginator]="true" [rows]="5" responsiveLayout="scroll">
-            <ng-template #header>
-                <tr>
-                    <th>Image</th>
-                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                    <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
-                    <th>View</th>
-                </tr>
-            </ng-template>
-            <ng-template #body let-product>
-                <tr>
-                    <td style="width: 15%; min-width: 5rem;">
-                        <img src="https://primefaces.org/cdn/primevue/images/product/{{ product.image }}" class="shadow-lg" alt="{{ product.name }}" width="50" />
-                    </td>
-                    <td style="width: 35%; min-width: 7rem;">{{ product.name }}</td>
-                    <td style="width: 35%; min-width: 8rem;">{{ product.price | currency: 'USD' }}</td>
-                    <td style="width: 15%;">
-                        <button pButton pRipple type="button" icon="pi pi-search" class="p-button p-component p-button-text p-button-icon-only"></button>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>`,
-    providers: [ProductService]
+    imports: [TableModule, TagModule, CurrencyPipe, DatePipe, RouterLink],
+    template: `
+        <div class="card mb-8!">
+            <div class="flex items-center justify-between mb-4">
+                <span class="font-semibold text-xl">Imóveis Recentes</span>
+                <a routerLink="/properties" class="text-primary text-sm font-medium hover:underline cursor-pointer">Ver todos</a>
+            </div>
+
+            <p-table [value]="properties()" responsiveLayout="scroll">
+                <ng-template #header>
+                    <tr>
+                        <th>Título</th>
+                        <th>Preço</th>
+                        <th>Status</th>
+                        <th>Tipo</th>
+                        <th>Cadastrado</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-p>
+                    <tr>
+                        <td style="min-width:10rem" class="truncate max-w-xs">{{ p.title }}</td>
+                        <td style="min-width:8rem">{{ p.price | currency:'BRL':'symbol':'1.0-0' }}</td>
+                        <td style="min-width:6rem">
+                            <p-tag
+                                [value]="p.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
+                                [severity]="p.status === 'ACTIVE' ? 'success' : 'danger'"
+                            />
+                        </td>
+                        <td style="min-width:6rem">{{ p.dealType === 'SALE' ? 'Venda' : 'Aluguel' }}</td>
+                        <td style="min-width:8rem">{{ p.createdAt | date:'dd/MM/yyyy' }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="5" class="text-center text-muted-color py-6">Nenhum imóvel cadastrado ainda.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    `
 })
 export class RecentSalesWidget {
-    products = signal<Product[]>([]);
-
-    productService = inject(ProductService);
-
-    ngOnInit() {
-        this.productService.getProductsSmall().then((data) => this.products.set(data));
-    }
+    readonly properties = input<RecentProperty[]>([]);
 }

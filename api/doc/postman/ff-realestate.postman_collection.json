@@ -1538,6 +1538,111 @@
       "description": "Endpoints administrativos — requerem autenticação com role ADMIN.",
       "item": [
         {
+          "name": "Dashboard",
+          "description": "Resumo estatístico do painel administrativo.",
+          "item": [
+            {
+              "name": "Get Dashboard Summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard"
+                  ]
+                },
+                "description": "Retorna contadores de imóveis ativos, inativos, categorias e depoimentos pendentes, além dos 5 imóveis mais recentes e 5 depoimentos aguardando aprovação. Requer autenticação com role ADMIN."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "if (pm.response.code === 200) {",
+                      "    const json = pm.response.json();",
+                      "    pm.expect(json.success).to.be.true;",
+                      "    const d = json.data;",
+                      "    pm.expect(d.totalActiveProperties).to.be.a('number');",
+                      "    pm.expect(d.totalInactiveProperties).to.be.a('number');",
+                      "    pm.expect(d.totalCategories).to.be.a('number');",
+                      "    pm.expect(d.totalPendingTestimonials).to.be.a('number');",
+                      "    pm.expect(d.recentProperties).to.be.an('array');",
+                      "    pm.expect(d.pendingTestimonials).to.be.an('array');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "status": "OK",
+                  "code": 200,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/admin/dashboard"
+                    }
+                  },
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n    \"success\": true,\n    \"message\": \"Resumo do dashboard obtido com sucesso.\",\n    \"data\": {\n        \"totalActiveProperties\": 42,\n        \"totalInactiveProperties\": 8,\n        \"totalCategories\": 6,\n        \"totalPendingTestimonials\": 3,\n        \"recentProperties\": [\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n                \"title\": \"Casa Nova no Jardim Mirian\",\n                \"slug\": \"casa-nova-no-jardim-mirian\",\n                \"price\": 450000.00,\n                \"status\": \"ACTIVE\",\n                \"dealType\": \"SALE\",\n                \"createdAt\": \"2025-01-01T12:00:00\"\n            }\n        ],\n        \"pendingTestimonials\": [\n            {\n                \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n                \"clientName\": \"João Silva\",\n                \"text\": \"Excelente atendimento!\",\n                \"rating\": 5,\n                \"createdAt\": \"2025-01-01T11:00:00\"\n            }\n        ]\n    }\n}"
+                },
+                {
+                  "name": "401 Unauthorized",
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/admin/dashboard"
+                    }
+                  },
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                },
+                {
+                  "name": "403 Forbidden",
+                  "status": "Forbidden",
+                  "code": 403,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/admin/dashboard"
+                    }
+                  },
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Properties",
           "description": "Gerenciamento administrativo do catálogo de imóveis.",
           "item": [
