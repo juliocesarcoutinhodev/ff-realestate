@@ -7,6 +7,7 @@ import { ApiResponse } from '@/app/core/models/api-response.model';
 import { ErrorResponse } from '@/app/core/models/error-response.model';
 
 export const SKIP_401_REDIRECT = new HttpContextToken<boolean>(() => false);
+export const SKIP_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
 
 export const skipAuthRedirect = (): HttpContext => new HttpContext().set(SKIP_401_REDIRECT, true);
 
@@ -32,8 +33,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 if (error.status === 401 && !req.context.get(SKIP_401_REDIRECT)) {
                     router.navigate(['/auth/login']);
                 } else if (error.status === 403) {
-                    router.navigate(['/auth/access']);
-                } else if (error.status !== 401) {
+                    router.navigate(['/403']);
+                } else if (!req.context.get(SKIP_ERROR_TOAST)) {
                     messageService.add({ severity: 'error', summary: 'Erro', detail });
                 }
             }

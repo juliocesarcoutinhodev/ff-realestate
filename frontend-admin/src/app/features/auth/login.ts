@@ -1,19 +1,22 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
+import { Message } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
-import { RippleModule } from 'primeng/ripple';
+import { Toast } from 'primeng/toast';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, ReactiveFormsModule, AppFloatingConfigurator, Message, Toast],
     template: `
+        <p-toast />
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">
@@ -41,22 +44,37 @@ import { AuthService } from '@/app/core/services/auth.service';
                             <span class="text-muted-color font-medium">Faça login para continuar!</span>
                         </div>
 
-                        <div>
-                            <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <input pInputText id="email1" type="text" placeholder="Digite seu email" class="w-full md:w-120 mb-8" [(ngModel)]="email" />
+                        <form [formGroup]="form" (ngSubmit)="submit()">
+                            <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">E-mail</label>
+                            <input pInputText id="email" formControlName="email" type="email" placeholder="Digite seu e-mail" class="w-full md:w-120" />
+                            @if (form.controls.email.invalid && form.controls.email.touched) {
+                                @if (form.controls.email.errors?.['required']) {
+                                    <p-message severity="error" text="E-mail é obrigatório" styleClass="mt-1 w-full" />
+                                } @else if (form.controls.email.errors?.['email']) {
+                                    <p-message severity="error" text="E-mail inválido" styleClass="mt-1 w-full" />
+                                }
+                            }
 
-                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
-                            <p-password id="password1" [(ngModel)]="password" placeholder="Digite sua senha" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
+                            <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2 mt-6">Senha</label>
+                            <p-password id="password" formControlName="password" placeholder="Digite sua senha" [toggleMask]="true" [fluid]="true" [feedback]="false" />
+                            @if (form.controls.password.invalid && form.controls.password.touched) {
+                                @if (form.controls.password.errors?.['required']) {
+                                    <p-message severity="error" text="Senha é obrigatória" styleClass="mt-1 w-full" />
+                                } @else if (form.controls.password.errors?.['minlength']) {
+                                    <p-message severity="error" text="Senha deve ter no mínimo 8 caracteres" styleClass="mt-1 w-full" />
+                                }
+                            }
 
-                            <div class="flex items-center justify-between mt-2 mb-8 gap-8">
+                            <div class="flex items-center justify-between mt-6 mb-8 gap-8">
                                 <div class="flex items-center">
-                                    <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                    <label for="rememberme1">Lembre me</label>
+                                    <p-checkbox formControlName="rememberMe" id="rememberme" binary class="mr-2" />
+                                    <label for="rememberme">Lembre me</label>
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Esqueceu a senha?</span>
                             </div>
-                            <p-button label="Entrar" styleClass="w-full" (onClick)="login()"></p-button>
-                        </div>
+
+                            <p-button label="Entrar" type="submit" styleClass="w-full" [disabled]="loading()" [loading]="loading()" />
+                        </form>
                     </div>
                 </div>
             </div>
@@ -66,15 +84,25 @@ import { AuthService } from '@/app/core/services/auth.service';
 export class Login {
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
+    private readonly fb = inject(FormBuilder);
 
-    email = '';
-    password = '';
-    checked = false;
+    readonly loading = signal(false);
 
-    login(): void {
-        this.authService.login(this.email, this.password).subscribe({
-            next: () => this.router.navigate(['/']),
-            error: () => {}
+    readonly form = this.fb.group({
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        rememberMe: [false]
+    });
+
+    submit(): void {
+        if (this.form.invalid) return;
+        this.loading.set(true);
+        const { email, password } = this.form.getRawValue();
+        this.authService.login(email!, password!).pipe(finalize(() => this.loading.set(false))).subscribe({
+            next: (response) => {
+                this.authService.setCurrentUser(response.data);
+                this.router.navigate(['/']);
+            }
         });
     }
 }

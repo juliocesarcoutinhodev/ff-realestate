@@ -1,15 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
+import { finalize } from 'rxjs';
+import { Avatar } from 'primeng/avatar';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Avatar],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -72,9 +75,13 @@ import { LayoutService } from '@/app/layout/service/layout.service';
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
+                    <div class="flex items-center gap-2 px-1">
+                        <p-avatar [label]="userInitials()" shape="circle" />
+                        <span class="font-medium text-sm">{{ authService.currentUser()?.name }}</span>
+                    </div>
+                    <button type="button" class="layout-topbar-action" (click)="logout()" [disabled]="loading()">
+                        <i [class]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-sign-out'"></i>
+                        <span>Sair</span>
                     </button>
                 </div>
             </div>
@@ -85,11 +92,33 @@ export class AppTopbar {
     items!: MenuItem[];
 
     layoutService = inject(LayoutService);
+    readonly authService = inject(AuthService);
+    private readonly router = inject(Router);
+
+    readonly loading = signal(false);
+
+    readonly userInitials = computed(() => {
+        const name = this.authService.currentUser()?.name;
+        if (!name) return '?';
+        return name
+            .split(' ')
+            .slice(0, 2)
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase();
+    });
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({
             ...state,
             darkTheme: !state.darkTheme
         }));
+    }
+
+    logout(): void {
+        this.loading.set(true);
+        this.authService.logout().pipe(finalize(() => this.loading.set(false))).subscribe({
+            next: () => this.router.navigate(['/auth/login'])
+        });
     }
 }

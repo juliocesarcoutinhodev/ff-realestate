@@ -45,6 +45,10 @@ export const appRoutes: Routes = [
             }
         ]
     },
+    {
+        path: '403',
+        loadComponent: () => import('./app/features/auth/access-denied/access-denied.component').then((m) => m.AccessDenied)
+    },
     { path: 'notfound', component: Notfound },
     { path: '**', redirectTo: '/notfound' }
 ];
