@@ -109,7 +109,7 @@ GET /auth/me → ok → prossegue
 | `**` (404) | `NotFound` | — |
 | `/dashboard` | `Dashboard` | `authGuard` |
 | `/properties` | `Properties` | `authGuard` |
-| `/categories` | `Categories` | `authGuard` |
+| `/categories` | `CategoryListComponent` | `authGuard` |
 | `/testimonials` | `Testimonials` | `authGuard` |
 
 ---
@@ -126,6 +126,15 @@ GET /auth/me → ok → prossegue
 | STORY-03 | Botão de logout na topbar com estado de carregamento |
 | STORY-04 | Avatar com iniciais + nome do usuário autenticado na topbar |
 | STORY-05 | Página 403 (acesso negado) em português com redirect para `/dashboard` |
+
+### EPIC-03 — Categorias
+
+| Story | O que foi feito |
+|---|---|
+| STORY-00 | `CategoryService` com `findAll()`, `findBySlug()`, `create()`, `update()`, `delete()` |
+| STORY-01 | `CategoryListComponent`: tabela com colunas Nome / Slug / Descrição / Ações; busca local por nome via `computed()`; skeleton de carregamento; modal criar/editar com Reactive Forms e validação; modal visualizar (read-only) com botão "Editar"; exclusão com `p-confirmDialog`; feedback via `p-toast` |
+
+---
 
 ### EPIC-02 — Dashboard
 
@@ -186,7 +195,11 @@ src/
         │   │   └── notificationswidget.ts → tabela de depoimentos pendentes + aprovar/rejeitar
         │   └── dashboard.ts             → orquestra os widgets e gerencia o signal summary
         ├── properties/                   → gestão de imóveis (em desenvolvimento)
-        ├── categories/                   → gestão de categorias (em desenvolvimento)
+        ├── categories/
+        │   ├── services/
+        │   │   └── category.service.ts   → findAll(), create(), update(), delete()
+        │   └── category-list/
+        │       └── category-list.component.ts → tabela + busca + modais CRUD
         ├── photos/                       → gestão de fotos (em desenvolvimento)
         └── testimonials/                 → gestão de depoimentos (em desenvolvimento)
 ```

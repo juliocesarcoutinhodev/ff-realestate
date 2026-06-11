@@ -20,7 +20,10 @@ export const appRoutes: Routes = [
             },
             {
                 path: 'categories',
-                loadComponent: () => import('./app/features/categories/categories').then((m) => m.Categories)
+                loadComponent: () =>
+                    import('./app/features/categories/category-list/category-list.component').then(
+                        (m) => m.CategoryListComponent
+                    )
             },
             {
                 path: 'testimonials',

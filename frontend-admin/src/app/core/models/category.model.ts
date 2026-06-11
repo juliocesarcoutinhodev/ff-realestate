@@ -4,3 +4,8 @@ export interface Category {
     slug: string;
     description?: string;
 }
+
+export interface CategoryForm {
+    name: string;
+    description?: string;
+}
