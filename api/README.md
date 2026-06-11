@@ -11,6 +11,7 @@ Backend da plataforma FF Realestate. API REST construída com Spring Boot 4 + Ja
 | Java | 25 |
 | Spring Boot | 4.x |
 | PostgreSQL | 17 |
+| Redis | 7 |
 | MinIO | SDK 8.5 |
 | Flyway | — |
 | MapStruct | 1.6 |
@@ -28,7 +29,7 @@ Backend da plataforma FF Realestate. API REST construída com Spring Boot 4 + Ja
 
 ## Rodando localmente
 
-### 1. Infraestrutura (PostgreSQL + MinIO)
+### 1. Infraestrutura (PostgreSQL + MinIO + Redis)
 
 ```bash
 docker compose -f ../docker-compose.local.yml --env-file .env.local up -d
@@ -76,6 +77,10 @@ A API sobe em `http://localhost:8080`.
 | `COOKIE_SECURE` | Se os cookies devem usar a flag Secure | Não (padrão: false) |
 | `ADMIN_DEFAULT_EMAIL` | E-mail do admin padrão criado pela migration | Sim |
 | `ADMIN_DEFAULT_PASSWORD` | Senha do admin padrão (usada apenas na migration seed) | Sim |
+| `CNPJA_API_URL` | URL base da API CNPJá (ex: `https://api.cnpja.com`) | Sim |
+| `CNPJA_API_TOKEN` | Token de autenticação da API CNPJá | Sim |
+| `REDIS_HOST` | Host do Redis (padrão local: `localhost`) | Não (padrão: `localhost`) |
+| `REDIS_PORT` | Porta do Redis | Não (padrão: `6379`) |
 
 Consulte `.env.example` para exemplos de valores por ambiente.
 
@@ -99,7 +104,7 @@ br.com.fabriciofaceroli
 ├── infrastructure/         → adapters globais de infraestrutura
 │   ├── security/           → JWT, cookies, Spring Security
 │   ├── minio/              → adapter de armazenamento de arquivos
-│   └── configuration/      → CORS, OpenAPI, health check
+│   └── configuration/      → CORS, OpenAPI, health check, cache Redis
 │
 └── shared/                 → utilitários agnósticos de framework
     ├── exception/          → tipos de exceção e handler global
@@ -121,6 +126,27 @@ br.com.fabriciofaceroli
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
 | GET | `/api/v1/health` | Não | Health check |
+
+### ZIP Code
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/zip/{code}` | Não | Consulta endereço de um CEP via API CNPJá (resultado cacheado no Redis por 7 dias) |
+
+**Campos da resposta:**
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `code` | string | CEP consultado |
+| `street` | string | Logradouro |
+| `district` | string | Bairro |
+| `city` | string | Cidade |
+| `state` | string | UF (sigla de 2 letras) |
+
+**Códigos de status:**
+- `200 OK` — CEP encontrado
+- `404 Not Found` — CEP inexistente na base CNPJá
+- `503 Service Unavailable` — API CNPJá indisponível; o usuário deve preencher o endereço manualmente
 
 ### Auth
 
@@ -286,34 +312,35 @@ Selecione o environment **Local**, execute **Auth › Login** e o token é salvo
 
 Fluxo recomendado:
 
-1. `Auth › Login` — emite dois cookies (`accessToken` 15 min + `refresh_token` 7 dias) e salva o JWT na variável `accessToken` da coleção
-2. `Auth › Session Validation (me)` — verifica se o token ainda é válido
-3. `Auth › Register Admin User` — usa o token salvo para criar novos admins
-4. `Auth › Refresh Token` — renova o access token usando o cookie `refresh_token` (path `/api/v1/auth`)
-5. `Auth › Logout` — invalida o refresh token no banco e limpa os cookies
-6. `Categories › List Categories` — lista categorias (público)
-7. `Categories › Create Category` — cria categoria com ADMIN autenticado (slug gerado automaticamente); salva `categoryId` automaticamente
-8. `Categories › Get Category by Slug` — busca categoria pelo slug (público)
-9. `Categories › Update Category` — atualiza nome/descrição (slug regenerado se nome mudar)
-10. `Categories › Delete Category` — remove categoria (rejeita se houver imóveis vinculados)
-11. `Properties › List Properties` — lista imóveis ativos com filtros opcionais (`categoryId`, `dealType`, `featured`, `city`) e paginação; salva `propertySlug` automaticamente
-12. `Properties › Get Property by Slug` — retorna detalhes completos do primeiro imóvel listado (categoria aninhada + array de fotos)
-13. `Admin › Dashboard › Get Dashboard Summary` — retorna contadores de imóveis, categorias e depoimentos pendentes, além dos 5 imóveis e 5 depoimentos mais recentes; requer token ADMIN
-14. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
-15. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
-16. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
-17. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
-18. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
-19. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
-20. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
-21. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
-22. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
-23. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
-24. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
-25. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
-26. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
-27. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
-28. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
+1. `ZIP Code › Lookup ZIP Code` — consulta endereço pelo CEP; público, sem autenticação; resultado cacheado no Redis por 7 dias
+2. `Auth › Login` — emite dois cookies (`accessToken` 15 min + `refresh_token` 7 dias) e salva o JWT na variável `accessToken` da coleção
+3. `Auth › Session Validation (me)` — verifica se o token ainda é válido
+4. `Auth › Register Admin User` — usa o token salvo para criar novos admins
+5. `Auth › Refresh Token` — renova o access token usando o cookie `refresh_token` (path `/api/v1/auth`)
+6. `Auth › Logout` — invalida o refresh token no banco e limpa os cookies
+7. `Categories › List Categories` — lista categorias (público)
+8. `Categories › Create Category` — cria categoria com ADMIN autenticado (slug gerado automaticamente); salva `categoryId` automaticamente
+9. `Categories › Get Category by Slug` — busca categoria pelo slug (público)
+10. `Categories › Update Category` — atualiza nome/descrição (slug regenerado se nome mudar)
+11. `Categories › Delete Category` — remove categoria (rejeita se houver imóveis vinculados)
+12. `Properties › List Properties` — lista imóveis ativos com filtros opcionais (`categoryId`, `dealType`, `featured`, `city`) e paginação; salva `propertySlug` automaticamente
+13. `Properties › Get Property by Slug` — retorna detalhes completos do primeiro imóvel listado (categoria aninhada + array de fotos)
+14. `Admin › Dashboard › Get Dashboard Summary` — retorna contadores de imóveis, categorias e depoimentos pendentes, além dos 5 imóveis e 5 depoimentos mais recentes; requer token ADMIN
+15. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
+16. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
+17. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
+18. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
+19. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
+20. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
+21. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
+22. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
+23. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
+24. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
+25. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
+26. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
+27. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
+28. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
+29. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
 
 ---
 

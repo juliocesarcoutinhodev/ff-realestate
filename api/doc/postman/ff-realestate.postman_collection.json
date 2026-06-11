@@ -107,6 +107,119 @@
       ]
     },
     {
+      "name": "ZIP Code",
+      "description": "Consulta de CEP via proxy CNPJá. Público — não requer autenticação. Resultado cacheado no Redis por 7 dias.",
+      "item": [
+        {
+          "name": "Lookup ZIP Code",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/zip/:code",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "zip",
+                ":code"
+              ],
+              "variable": [
+                {
+                  "key": "code",
+                  "value": "03195000",
+                  "description": "CEP com ou sem hífen (ex: 03195-000 ou 03195000)"
+                }
+              ]
+            },
+            "description": "Consulta os dados de endereço de um CEP via API CNPJá. O resultado é cacheado no Redis por 7 dias. Retorna 404 se o CEP não for encontrado, 503 se o serviço externo estiver indisponível."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.code).to.be.a('string');",
+                  "    pm.expect(json.data.street).to.be.a('string');",
+                  "    pm.expect(json.data.district).to.be.a('string');",
+                  "    pm.expect(json.data.city).to.be.a('string');",
+                  "    pm.expect(json.data.state).to.be.a('string');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/zip/03195000"
+                }
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"success\": true,\n    \"message\": \"CEP encontrado.\",\n    \"data\": {\n        \"code\": \"03195000\",\n        \"street\": \"Rua Guaimbê\",\n        \"district\": \"Tatuapé\",\n        \"city\": \"São Paulo\",\n        \"state\": \"SP\"\n    }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/zip/00000000"
+                }
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"CEP não encontrado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "503 Service Unavailable",
+              "status": "Service Unavailable",
+              "code": 503,
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/zip/03195000"
+                }
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"status\": 503,\n    \"error\": \"Service Unavailable\",\n    \"message\": \"Serviço de CEP indisponível. Preencha o endereço manualmente.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Auth",
       "description": "Autenticação e gerenciamento de sessão.",
       "item": [

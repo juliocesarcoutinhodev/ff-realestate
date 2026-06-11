@@ -1,6 +1,14 @@
 spring:
   application:
     name: ff-realestate-api
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 604800000
   servlet:
     multipart:
       max-file-size: 10MB
@@ -9,6 +17,10 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   config:
     import: "optional:file:.env.local[.properties]"
+
+cnpja:
+  api-url: ${CNPJA_API_URL}
+  api-token: ${CNPJA_API_TOKEN}
 
 app:
   jwt:
