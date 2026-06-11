@@ -132,7 +132,9 @@ GET /auth/me → ok → prossegue
 | Story | O que foi feito |
 |---|---|
 | STORY-00 | `CategoryService` com `findAll()`, `findBySlug()`, `create()`, `update()`, `delete()` |
-| STORY-01 | `CategoryListComponent`: tabela com colunas Nome / Slug / Descrição / Ações; busca local por nome via `computed()`; skeleton de carregamento; modal criar/editar com Reactive Forms e validação; modal visualizar (read-only) com botão "Editar"; exclusão com `p-confirmDialog`; feedback via `p-toast` |
+| STORY-01 | `CategoryListComponent`: tabela com colunas Nome / Slug / Descrição / Ações; busca local por nome via `computed()`; skeleton de carregamento (`#loadingbody`); modal visualizar (read-only) com botão "Editar"; exclusão com `p-confirmDialog` |
+| STORY-02 | `CategoryModalComponent`: `visible = model(false)` para two-way binding; `@Input() category?` determina modo criar/editar; slug preview em tempo real via `toSignal(valueChanges)` + `computed()`; `effect()` popula o form ao abrir; form com `maxLength(100)` no nome e `maxLength(500)` na descrição; emite `(saved)` para o pai recarregar a lista |
+| STORY-03 | Confirmação de exclusão via `p-confirmDialog`: mensagem "Deseja excluir a categoria '...'? Esta ação não pode ser desfeita."; remove o item do signal local sem recarregar; toast de sucesso via `MessageService` root; erros (incluindo 409 Conflict) tratados pelo `errorInterceptor` |
 
 ---
 
@@ -197,9 +199,11 @@ src/
         ├── properties/                   → gestão de imóveis (em desenvolvimento)
         ├── categories/
         │   ├── services/
-        │   │   └── category.service.ts   → findAll(), create(), update(), delete()
-        │   └── category-list/
-        │       └── category-list.component.ts → tabela + busca + modais CRUD
+        │   │   └── category.service.ts        → findAll(), create(), update(), delete()
+        │   ├── category-list/
+        │   │   └── category-list.component.ts → tabela + busca local + modal visualizar + exclusão com confirm
+        │   └── category-modal/
+        │       └── category-modal.component.ts → modal criar/editar + slug preview em tempo real
         ├── photos/                       → gestão de fotos (em desenvolvimento)
         └── testimonials/                 → gestão de depoimentos (em desenvolvimento)
 ```
