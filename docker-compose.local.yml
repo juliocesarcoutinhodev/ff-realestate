@@ -52,7 +52,8 @@ services:
       /bin/sh -c "
         mc alias set local http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY &&
         mc mb --ignore-existing local/$$MINIO_BUCKET &&
-        echo 'Bucket '$$MINIO_BUCKET' ready.' &&
+        mc anonymous set download local/$$MINIO_BUCKET &&
+        echo 'Bucket '$$MINIO_BUCKET' and public policy (download) ready.' &&
         exit 0
       "
 
