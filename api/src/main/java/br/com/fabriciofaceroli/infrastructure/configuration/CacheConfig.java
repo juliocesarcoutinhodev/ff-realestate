@@ -6,7 +6,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -18,9 +23,10 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import java.time.Duration;
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @EnableCaching
-public class CacheConfig {
+public class CacheConfig implements CachingConfigurer {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
@@ -43,6 +49,21 @@ public class CacheConfig {
                 .build();
     }
 
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new SimpleCacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
+                log.warn("Cache GET error for key '{}' in '{}', evicting stale entry: {}",
+                        key, cache.getName(), exception.getMessage());
+                try {
+                    cache.evict(key);
+                } catch (Exception ignored) {
+                }
+            }
+        };
+    }
+
     private ObjectMapper redisObjectMapper() {
         return JsonMapper.builder()
                 .addModule(new JavaTimeModule())
@@ -51,7 +72,7 @@ public class CacheConfig {
                         BasicPolymorphicTypeValidator.builder()
                                 .allowIfSubType(Object.class)
                                 .build(),
-                        ObjectMapper.DefaultTyping.NON_FINAL,
+                        ObjectMapper.DefaultTyping.EVERYTHING,
                         JsonTypeInfo.As.PROPERTY
                 )
                 .build();
