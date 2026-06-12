@@ -46,6 +46,9 @@ public record PropertySummaryResponse(
         @Schema(description = "Imóvel em destaque", example = "false")
         boolean featured,
 
+        @Schema(description = "Status do imóvel: ACTIVE ou INACTIVE", example = "ACTIVE")
+        String status,
+
         @Schema(description = "ID da categoria", example = "550e8400-e29b-41d4-a716-446655440001")
         UUID categoryId,
 

@@ -1,5 +1,6 @@
 package br.com.fabriciofaceroli.property.adapter.in.web.controller;
 
+import br.com.fabriciofaceroli.property.adapter.in.web.dto.PropertyDetailResponse;
 import br.com.fabriciofaceroli.property.adapter.in.web.dto.PropertySummaryResponse;
 import br.com.fabriciofaceroli.property.domain.model.DealType;
 import br.com.fabriciofaceroli.property.domain.model.PropertyStatus;
@@ -38,5 +39,14 @@ public interface AdminPropertyApiDocs {
             @Parameter(description = "Filtra por status: ACTIVE ou INACTIVE (sem filtro = todos)", example = "ACTIVE") PropertyStatus status,
             @Parameter(description = "Número da página (base 0)", example = "0") int page,
             @Parameter(description = "Quantidade de itens por página", example = "12") int size
+    );
+
+    @Operation(summary = "Buscar imóvel por ID (admin)", description = "Retorna todos os dados do imóvel independente do status. Requer autenticação com role ADMIN.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Imóvel encontrado", content = @Content(schema = @Schema(implementation = PropertyDetailResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Imóvel não encontrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Não autenticado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
+    ResponseEntity<ApiResponse<PropertyDetailResponse>> getById(
+            @Parameter(description = "ID do imóvel", example = "550e8400-e29b-41d4-a716-446655440000") UUID id
     );
 }

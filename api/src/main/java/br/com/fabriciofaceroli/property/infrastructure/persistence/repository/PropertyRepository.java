@@ -40,6 +40,35 @@ public interface PropertyRepository extends JpaRepository<PropertyEntity, UUID>,
                    c.slug            AS categorySlug
             FROM   properties p
                    INNER JOIN categories c ON p.category_id = c.id
+            WHERE  p.id = :id
+            """, nativeQuery = true)
+    Optional<PropertyDetailProjection> findDetailById(@Param("id") UUID id);
+
+    @Query(value = """
+            SELECT p.id,
+                   p.title,
+                   p.slug,
+                   p.description,
+                   p.price,
+                   p.area,
+                   p.bedrooms,
+                   p.suites,
+                   p.bathrooms,
+                   p.parking_spots   AS parkingSpots,
+                   p.address,
+                   p.neighborhood,
+                   p.city,
+                   p.state,
+                   p.zip_code        AS zipCode,
+                   p.deal_type       AS dealType,
+                   p.featured,
+                   p.status,
+                   p.external_url    AS externalUrl,
+                   p.category_id     AS categoryId,
+                   c.name            AS categoryName,
+                   c.slug            AS categorySlug
+            FROM   properties p
+                   INNER JOIN categories c ON p.category_id = c.id
             WHERE  p.slug = :slug
               AND  p.status = 'ACTIVE'
             """, nativeQuery = true)

@@ -8,6 +8,7 @@ import br.com.fabriciofaceroli.property.application.port.out.FindActivePropertie
 import br.com.fabriciofaceroli.property.application.port.out.FindAllPropertiesPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindPropertyByIdPort;
 import br.com.fabriciofaceroli.property.application.port.out.FindPropertyBySlugPort;
+import br.com.fabriciofaceroli.property.application.port.out.FindPropertyDetailByIdPort;
 import br.com.fabriciofaceroli.property.application.port.out.SavePropertyPort;
 import br.com.fabriciofaceroli.property.domain.model.CategoryInfo;
 import br.com.fabriciofaceroli.property.domain.model.DealType;
@@ -29,7 +30,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyByIdPort, FindPropertyBySlugPort, SavePropertyPort, CheckPropertySlugPort, DeletePropertyByIdPort {
+public class PropertyPersistenceAdapter implements FindActivePropertiesPort, FindAllPropertiesPort, FindPropertyByIdPort, FindPropertyBySlugPort, FindPropertyDetailByIdPort, SavePropertyPort, CheckPropertySlugPort, DeletePropertyByIdPort {
 
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
@@ -75,6 +76,11 @@ public class PropertyPersistenceAdapter implements FindActivePropertiesPort, Fin
     @Override
     public Optional<PropertyDetail> findBySlug(String slug) {
         return propertyRepository.findActiveBySlug(slug).map(this::toPropertyDetail);
+    }
+
+    @Override
+    public Optional<PropertyDetail> findDetailById(UUID id) {
+        return propertyRepository.findDetailById(id).map(this::toPropertyDetail);
     }
 
     private Specification<PropertyEntity> applyCommonFilters(

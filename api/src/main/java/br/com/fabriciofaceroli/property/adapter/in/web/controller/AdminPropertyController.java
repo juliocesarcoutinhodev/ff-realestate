@@ -1,7 +1,9 @@
 package br.com.fabriciofaceroli.property.adapter.in.web.controller;
 
+import br.com.fabriciofaceroli.property.adapter.in.web.dto.PropertyDetailResponse;
 import br.com.fabriciofaceroli.property.adapter.in.web.dto.PropertySummaryResponse;
 import br.com.fabriciofaceroli.property.adapter.in.web.mapper.PropertyWebMapper;
+import br.com.fabriciofaceroli.property.application.port.in.GetAdminPropertyByIdPort;
 import br.com.fabriciofaceroli.property.application.port.in.ListAllPropertiesPort;
 import br.com.fabriciofaceroli.property.application.port.in.ListAllPropertiesQuery;
 import br.com.fabriciofaceroli.property.domain.model.DealType;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +29,7 @@ import java.util.UUID;
 public class AdminPropertyController implements AdminPropertyApiDocs {
 
     private final ListAllPropertiesPort listAllPropertiesPort;
+    private final GetAdminPropertyByIdPort getAdminPropertyByIdPort;
     private final PropertyWebMapper propertyWebMapper;
 
     @Override
@@ -42,5 +46,12 @@ public class AdminPropertyController implements AdminPropertyApiDocs {
         var query = new ListAllPropertiesQuery(categoryId, dealType, featured, city, status, PageRequest.of(page, size));
         var result = listAllPropertiesPort.listAll(query);
         return ResponseEntity.ok(ApiResponse.success("Imóveis listados com sucesso.", propertyWebMapper.toPageResponse(result)));
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PropertyDetailResponse>> getById(@PathVariable UUID id) {
+        var property = getAdminPropertyByIdPort.getById(id);
+        return ResponseEntity.ok(ApiResponse.success("Imóvel encontrado.", propertyWebMapper.toDetailResponse(property)));
     }
 }
