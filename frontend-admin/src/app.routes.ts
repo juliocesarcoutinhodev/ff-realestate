@@ -16,14 +16,15 @@ export const appRoutes: Routes = [
             },
             {
                 path: 'properties',
-                loadComponent: () => import('./app/features/properties/properties').then((m) => m.Properties)
+                children: [
+                    { path: '', loadComponent: () => import('./app/features/properties/property-list/property-list.component').then((m) => m.PropertyListComponent) },
+                    { path: 'new', loadComponent: () => import('./app/features/properties/property-form/property-form.component').then((m) => m.PropertyFormComponent) },
+                    { path: ':id/edit', loadComponent: () => import('./app/features/properties/property-form/property-form.component').then((m) => m.PropertyFormComponent) }
+                ]
             },
             {
                 path: 'categories',
-                loadComponent: () =>
-                    import('./app/features/categories/category-list/category-list.component').then(
-                        (m) => m.CategoryListComponent
-                    )
+                loadComponent: () => import('./app/features/categories/category-list/category-list.component').then((m) => m.CategoryListComponent)
             },
             {
                 path: 'testimonials',
