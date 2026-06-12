@@ -9,6 +9,7 @@ import br.com.fabriciofaceroli.photo.application.port.in.ReorderPhotosPort;
 import br.com.fabriciofaceroli.photo.application.port.in.SetCoverPhotoPort;
 import br.com.fabriciofaceroli.photo.application.port.in.UploadPhotosCommand;
 import br.com.fabriciofaceroli.photo.application.port.in.UploadPhotosPort;
+import br.com.fabriciofaceroli.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,40 +43,41 @@ public class PhotoController implements PhotoApiDocs {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<PhotoUploadResponse>> listPhotos(@PathVariable UUID propertyId) {
+    public ResponseEntity<ApiResponse<List<PhotoUploadResponse>>> listPhotos(@PathVariable UUID propertyId) {
         var photos = listPhotosPort.list(propertyId);
-        return ResponseEntity.ok(photoWebMapper.toResponseList(photos));
+        return ResponseEntity.ok(ApiResponse.success("Fotos listadas com sucesso.", photoWebMapper.toResponseList(photos)));
     }
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<PhotoUploadResponse>> uploadPhotos(
+    public ResponseEntity<ApiResponse<List<PhotoUploadResponse>>> uploadPhotos(
             @PathVariable UUID propertyId,
             @RequestParam("files") List<MultipartFile> files) {
         var command = new UploadPhotosCommand(propertyId, photoWebMapper.toPhotoFiles(files));
         var photos = uploadPhotosPort.upload(command);
-        return ResponseEntity.status(HttpStatus.CREATED).body(photoWebMapper.toResponseList(photos));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Fotos enviadas com sucesso.", photoWebMapper.toResponseList(photos)));
     }
 
     @Override
     @PatchMapping("/{photoId}/cover")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<PhotoUploadResponse>> setCover(
+    public ResponseEntity<ApiResponse<List<PhotoUploadResponse>>> setCover(
             @PathVariable UUID propertyId,
             @PathVariable UUID photoId) {
         var photos = setCoverPhotoPort.setCover(propertyId, photoId);
-        return ResponseEntity.ok(photoWebMapper.toResponseList(photos));
+        return ResponseEntity.ok(ApiResponse.success("Foto de capa atualizada com sucesso.", photoWebMapper.toResponseList(photos)));
     }
 
     @Override
     @PatchMapping("/order")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<PhotoUploadResponse>> reorderPhotos(
+    public ResponseEntity<ApiResponse<List<PhotoUploadResponse>>> reorderPhotos(
             @PathVariable UUID propertyId,
             @RequestBody List<PhotoOrderItemRequest> items) {
         var photos = reorderPhotosPort.reorder(propertyId, photoWebMapper.toOrderItems(items));
-        return ResponseEntity.ok(photoWebMapper.toResponseList(photos));
+        return ResponseEntity.ok(ApiResponse.success("Ordem das fotos atualizada com sucesso.", photoWebMapper.toResponseList(photos)));
     }
 
     @Override
