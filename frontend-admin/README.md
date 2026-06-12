@@ -151,6 +151,19 @@ GET /auth/me → ok → prossegue
 
 ---
 
+### EPIC-05 — Fotos
+
+| Story | O que foi feito |
+|---|---|
+| STORY-00 | `PhotoService` com `findAll()`, `upload()` (`reportProgress: true`), `setCover()`, `reorder()`, `delete()`; interfaces `PropertyPhoto`, `PhotoOrder` |
+| STORY-01 | `PhotoManagerComponent`: carrega fotos via `ngOnInit`; galeria em grid responsivo; skeleton 4 cards durante carregamento; `p-tag` "Capa" sobre foto cover; botões Definir capa / Excluir visíveis no hover; `p-confirmDialog` para exclusão |
+| STORY-02 | Upload com `p-fileupload` em modo `customUpload`; barra de progresso via `HttpEventType.UploadProgress`; validações client-side (> 10 MB / MIME inválido) com `p-message` inline; após upload bem-sucedido atualiza o signal `photos` sem recarregar, limpa a fila |
+| STORY-03 | Drag & drop via `@angular/cdk/drag-drop` (`cdkDropList` + `cdkDrag`); atualização otimista do signal antes da resposta; revert automático em caso de erro; `reordering = signal(false)` exibe spinner durante chamada; borda e badge ⭐ Capa com cor exata `#C9A84C` na foto cover |
+| STORY-04 | Atualização otimista ao definir capa (`cover=true` na foto selecionada, `cover=false` nas demais) antes da resposta da API; revert em caso de erro; `deletedCoverWarning` limpo ao definir nova capa; toast via `errorInterceptor` |
+| STORY-05 | `p-confirmDialog` com wording "remover"; remove foto do signal local; `deletedCoverWarning = signal(false)` exibe `p-message warn` quando foto de capa é removida; toast via `MessageService` manual (DELETE 204 No Content não tem corpo para o interceptor) |
+
+---
+
 ### EPIC-02 — Dashboard
 
 | Story | O que foi feito |
@@ -225,8 +238,10 @@ src/
         │   └── category-modal/
         │       └── category-modal.component.ts → modal criar/editar + slug preview em tempo real
         ├── photos/
+        │   ├── services/
+        │   │   └── photo.service.ts               → findAll(), upload() (reportProgress), setCover(), reorder(), delete()
         │   └── photo-manager/
-        │       └── photo-manager.component.ts → placeholder (EPIC-05)
+        │       └── photo-manager.component.ts     → galeria + upload com progresso + validação client-side
         └── testimonials/                 → gestão de depoimentos (em desenvolvimento)
 ```
 

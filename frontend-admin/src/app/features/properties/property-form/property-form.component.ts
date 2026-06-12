@@ -57,7 +57,9 @@ import { ZipCodeService } from '../services/zip-code.service';
                             }
                         </p-tabpanel>
                         <p-tabpanel value="fotos">
-                            <app-photo-manager [propertyId]="id" />
+                            @if (id && activeTab() === 'fotos') {
+                                <app-photo-manager [propertyId]="id" />
+                            }
                         </p-tabpanel>
                     </p-tabpanels>
                 </p-tabs>

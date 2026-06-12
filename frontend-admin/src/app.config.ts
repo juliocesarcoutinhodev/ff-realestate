@@ -4,6 +4,7 @@ import localePtBr from '@angular/common/locales/pt';
 import { authInterceptor } from '@/app/core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@/app/core/interceptors/error.interceptor';
 import { ApplicationConfig, LOCALE_ID, provideZonelessChangeDetection } from '@angular/core';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withComponentInputBinding, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
         MessageService,
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         provideZonelessChangeDetection(),
+        provideAnimations(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } })
     ]
 };

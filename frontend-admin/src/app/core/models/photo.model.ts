@@ -4,3 +4,8 @@ export interface PropertyPhoto {
     orderIndex: number;
     cover: boolean;
 }
+
+export interface PhotoOrder {
+    id: string;
+    orderIndex: number;
+}

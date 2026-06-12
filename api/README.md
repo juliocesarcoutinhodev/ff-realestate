@@ -205,7 +205,7 @@ br.com.fabriciofaceroli
 | POST | `/api/v1/properties/{id}/photos` | ADMIN | Faz upload de múltiplas fotos (`multipart/form-data`, campo `files`) |
 | PATCH | `/api/v1/properties/{id}/photos/{photoId}/cover` | ADMIN | Define a foto de capa — `cover=true` na selecionada, `cover=false` nas demais |
 | PATCH | `/api/v1/properties/{id}/photos/order` | ADMIN | Reordena fotos em transação única; body: `[{ "id": "uuid", "orderIndex": 0 }, ...]` |
-| DELETE | `/api/v1/properties/{id}/photos/{photoId}` | ADMIN | Remove foto do MinIO e do banco; promove nova capa se a removida era a capa |
+| DELETE | `/api/v1/properties/{id}/photos/{photoId}` | ADMIN | Remove foto do MinIO e do banco; promove nova capa se a removida era a capa; retorna 204 No Content |
 
 **Listagem de fotos:**
 - A foto com `cover=true` sempre retorna primeiro, independente do `order_index`
