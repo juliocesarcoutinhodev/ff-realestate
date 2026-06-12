@@ -1948,6 +1948,90 @@
               ]
             },
             {
+              "name": "Get Property by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/properties/{{propertyId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "admin", "properties", "{{propertyId}}"]
+                },
+                "description": "Retorna todos os dados de um imóvel pelo ID, independente do status (ACTIVE ou INACTIVE). Inclui campos completos: zipCode, address, neighborhood, state, description, category aninhada e array de fotos. Usado pelo formulário de edição do painel admin. Requer autenticação com role ADMIN."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "if (pm.response.code === 200) {",
+                      "    const json = pm.response.json();",
+                      "    pm.expect(json.success).to.be.true;",
+                      "    const d = json.data;",
+                      "    pm.expect(d.id).to.equal(pm.collectionVariables.get('propertyId'));",
+                      "    pm.expect(d.title).to.be.a('string');",
+                      "    pm.expect(d.slug).to.be.a('string');",
+                      "    pm.expect(d.status).to.be.oneOf(['ACTIVE', 'INACTIVE']);",
+                      "    pm.expect(d.dealType).to.be.oneOf(['SALE', 'RENT']);",
+                      "    pm.expect(d.category).to.be.an('object');",
+                      "    pm.expect(d.category.id).to.be.a('string');",
+                      "    pm.expect(d.photos).to.be.an('array');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "status": "OK",
+                  "code": 200,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties/{{propertyId}}" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"success\": true,\n    \"message\": \"Imóvel encontrado.\",\n    \"data\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"title\": \"Casa Nova no Jardim Mirian\",\n        \"slug\": \"casa-nova-no-jardim-mirian\",\n        \"description\": \"Descrição completa do imóvel.\",\n        \"price\": 450000.00,\n        \"area\": 125.00,\n        \"bedrooms\": 3,\n        \"suites\": 1,\n        \"bathrooms\": 2,\n        \"parkingSpots\": 2,\n        \"address\": \"Rua das Flores, 123\",\n        \"neighborhood\": \"Jardim Mirian\",\n        \"city\": \"São Paulo\",\n        \"state\": \"SP\",\n        \"zipCode\": \"04000-000\",\n        \"dealType\": \"SALE\",\n        \"featured\": false,\n        \"status\": \"INACTIVE\",\n        \"externalUrl\": null,\n        \"category\": {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n            \"name\": \"Casa\",\n            \"slug\": \"casa\"\n        },\n        \"photos\": []\n    }\n}"
+                },
+                {
+                  "name": "404 Not Found",
+                  "status": "Not Found",
+                  "code": 404,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties/00000000-0000-0000-0000-000000000000" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Imóvel não encontrado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                },
+                {
+                  "name": "401 Unauthorized",
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties/{{propertyId}}" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                },
+                {
+                  "name": "403 Forbidden",
+                  "status": "Forbidden",
+                  "code": 403,
+                  "originalRequest": {
+                    "method": "GET",
+                    "url": { "raw": "{{baseUrl}}/api/v1/admin/properties/{{propertyId}}" }
+                  },
+                  "header": [{ "key": "Content-Type", "value": "application/json" }],
+                  "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+                }
+              ]
+            },
+            {
               "name": "Update Property",
               "request": {
                 "method": "PUT",

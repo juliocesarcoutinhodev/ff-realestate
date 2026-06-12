@@ -108,7 +108,9 @@ GET /auth/me → ok → prossegue
 | `/403` | `AccessDenied` | — |
 | `**` (404) | `NotFound` | — |
 | `/dashboard` | `Dashboard` | `authGuard` |
-| `/properties` | `Properties` | `authGuard` |
+| `/properties` | `PropertyListComponent` | `authGuard` |
+| `/properties/new` | `PropertyFormComponent` (criar) | `authGuard` |
+| `/properties/:id/edit` | `PropertyFormComponent` (editar) | `authGuard` |
 | `/categories` | `CategoryListComponent` | `authGuard` |
 | `/testimonials` | `Testimonials` | `authGuard` |
 
@@ -135,6 +137,17 @@ GET /auth/me → ok → prossegue
 | STORY-01 | `CategoryListComponent`: tabela com colunas Nome / Slug / Descrição / Ações; busca local por nome via `computed()`; skeleton de carregamento (`#loadingbody`); modal visualizar (read-only) com botão "Editar"; exclusão com `p-confirmDialog` |
 | STORY-02 | `CategoryModalComponent`: `visible = model(false)` para two-way binding; `@Input() category?` determina modo criar/editar; slug preview em tempo real via `toSignal(valueChanges)` + `computed()`; `effect()` popula o form ao abrir; form com `maxLength(100)` no nome e `maxLength(500)` na descrição; emite `(saved)` para o pai recarregar a lista |
 | STORY-03 | Confirmação de exclusão via `p-confirmDialog`: mensagem "Deseja excluir a categoria '...'? Esta ação não pode ser desfeita."; remove o item do signal local sem recarregar; toast de sucesso via `MessageService` root; erros (incluindo 409 Conflict) tratados pelo `errorInterceptor` |
+
+### EPIC-04 — Imóveis
+
+| Story | O que foi feito |
+|---|---|
+| STORY-00 | `PropertyService` com `findAll()`, `findById()` (admin), `create()`, `update()`, `toggleStatus()`, `delete()`; `ZipCodeService.findByCode()` com `HttpContext` opcional para suprimir toast de 404; interfaces `Property`, `PropertyDetail`, `PropertyForm`, `PropertyFilters`, `ZipCodeResponse` |
+| STORY-01 | `PropertyListComponent`: tabela paginada com filtros reativos (`status`, `dealType`, `categoria`); `toObservable(activeFilters) + switchMap` cancela requisição anterior; skeleton de carregamento; `p-tag` por status; navegação para criar/editar |
+| STORY-02 | `PropertyFormComponent` (criar): formulário em 5 seções com `p-card`; busca de CEP no `blur` via `ZipCodeService` com `SKIP_ERROR_TOAST`; máscara de CEP via `(input)`; após salvar redireciona para `/:id/edit?tab=fotos` |
+| STORY-03 | `PropertyFormComponent` (editar): `@Input() id` e `@Input() tab` via `withComponentInputBinding()`; `p-tabs` com abas "Dados" e "Fotos"; skeleton enquanto carrega; `patchForm()` preenche todos os campos e seta `zipCodePreloaded = true` para evitar re-busca; breadcrumb reativo com título do imóvel; após salvar permanece na página (toast via interceptor); `PhotoManagerComponent` placeholder em `features/photos/` |
+| STORY-04 | Toggle de status via `p-confirmDialog`: mensagem contextual ACTIVE/INACTIVE; atualiza signal local; toast via `errorInterceptor` (resposta com body) |
+| STORY-05 | Exclusão via `p-confirmDialog`; remove item do signal local; toast via `MessageService` (DELETE retorna 204 sem body, interceptor não dispara) |
 
 ---
 
@@ -178,7 +191,7 @@ src/
     │       ├── category.model.ts         → Category
     │       ├── dashboard.model.ts        → DashboardSummary, RecentProperty, PendingTestimonial
     │       ├── photo.model.ts            → Photo
-    │       ├── property.model.ts         → Property
+    │       ├── property.model.ts         → Property, PropertyDetail, PropertyForm, PropertyFilters, ZipCodeResponse
     │       └── testimonial.model.ts      → Testimonial
     ├── shared/
     │   └── components/
@@ -196,7 +209,14 @@ src/
         │   │   ├── recentsaleswidget.ts  → tabela de imóveis recentes
         │   │   └── notificationswidget.ts → tabela de depoimentos pendentes + aprovar/rejeitar
         │   └── dashboard.ts             → orquestra os widgets e gerencia o signal summary
-        ├── properties/                   → gestão de imóveis (em desenvolvimento)
+        ├── properties/
+        │   ├── services/
+        │   │   ├── property.service.ts        → findAll(), findById() (admin), create(), update(), toggleStatus(), delete()
+        │   │   └── zip-code.service.ts        → findByCode() com HttpContext opcional
+        │   ├── property-list/
+        │   │   └── property-list.component.ts → tabela paginada + filtros reativos + toggle status + exclusão
+        │   └── property-form/
+        │       └── property-form.component.ts → criar/editar com tabs Dados/Fotos, CEP auto-fill, skeleton
         ├── categories/
         │   ├── services/
         │   │   └── category.service.ts        → findAll(), create(), update(), delete()
@@ -204,7 +224,9 @@ src/
         │   │   └── category-list.component.ts → tabela + busca local + modal visualizar + exclusão com confirm
         │   └── category-modal/
         │       └── category-modal.component.ts → modal criar/editar + slug preview em tempo real
-        ├── photos/                       → gestão de fotos (em desenvolvimento)
+        ├── photos/
+        │   └── photo-manager/
+        │       └── photo-manager.component.ts → placeholder (EPIC-05)
         └── testimonials/                 → gestão de depoimentos (em desenvolvimento)
 ```
 

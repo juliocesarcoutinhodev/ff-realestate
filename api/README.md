@@ -195,6 +195,7 @@ br.com.fabriciofaceroli
 | DELETE | `/api/v1/properties/{id}` | ADMIN | Remove imóvel e todas as fotos vinculadas (MinIO + banco) |
 | PATCH | `/api/v1/properties/{id}/status` | ADMIN | Ativa ou inativa um imóvel sem alterar nenhum outro dado |
 | GET | `/api/v1/admin/properties` | ADMIN | Lista todos os imóveis incluindo inativos; suporta filtro por `status` |
+| GET | `/api/v1/admin/properties/{id}` | ADMIN | Retorna todos os dados de um imóvel pelo ID, independente do status (inclui `zipCode`, `address`, `state`, `description`) |
 
 ### Photos
 
@@ -327,20 +328,21 @@ Fluxo recomendado:
 13. `Properties › Get Property by Slug` — retorna detalhes completos do primeiro imóvel listado (categoria aninhada + array de fotos)
 14. `Admin › Dashboard › Get Dashboard Summary` — retorna contadores de imóveis, categorias e depoimentos pendentes, além dos 5 imóveis e 5 depoimentos mais recentes; requer token ADMIN
 15. `Admin › Properties › List All Properties` — lista todos os imóveis incluindo inativos; suporta filtro opcional `?status=ACTIVE|INACTIVE`; requer token ADMIN
-16. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
-17. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
-18. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
-19. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
-20. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
-21. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
-22. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
-23. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
-24. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
-25. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
-26. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
-27. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
-28. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
-29. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
+16. `Admin › Properties › Get Property by ID` — retorna todos os campos do imóvel pelo ID (incluindo `zipCode`, `address`, `description`), independente do status; requer token ADMIN
+17. `Admin › Properties › Create Property` — cria novo imóvel; slug gerado automaticamente a partir do título; requer token ADMIN; salva `propertyId` automaticamente
+18. `Admin › Properties › Update Property` — atualiza imóvel pelo ID; slug regenerado apenas se o título mudar; `status` opcional (mantém o atual se omitido); requer token ADMIN
+19. `Admin › Properties › Delete Property` — remove imóvel e fotos vinculadas permanentemente; retorna 204; requer token ADMIN
+20. `Admin › Properties › Toggle Property Status` — ativa ou inativa imóvel sem alterar outros dados; aceita `ACTIVE` ou `INACTIVE`; requer token ADMIN
+21. `Admin › Photos › Upload Photos` — faz upload de múltiplas fotos para o imóvel criado; campo `files` multipart; retorna array de fotos com `id`, `url`, `orderIndex`, `cover`; requer token ADMIN; salva `photoId` automaticamente
+22. `Photos › List Photos` — lista todas as fotos do imóvel pelo `propertyId`; capa sempre retorna primeira; público, sem autenticação
+23. `Admin › Photos › Set Cover Photo` — define a foto de capa usando o `photoId` salvo; retorna lista atualizada; requer token ADMIN
+24. `Admin › Photos › Reorder Photos` — reordena fotos enviando array `[{ "id", "orderIndex" }]`; fotos fora do array mantêm ordem atual; requer token ADMIN
+25. `Admin › Photos › Delete Photo` — remove foto do MinIO e do banco; se era capa, próxima assume automaticamente; retorna 204; requer token ADMIN
+26. `Testimonials › Submit Testimonial` — envia depoimento público sem autenticação; `propertyId` opcional; retorna 201 com `id`, `clientName`, `rating`, `status=PENDING`
+27. `Testimonials › List Testimonials` — lista depoimentos `APPROVED` sem autenticação; ative o query param `propertyId` para filtrar por imóvel
+28. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
+29. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
+30. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
 
 ---
 
