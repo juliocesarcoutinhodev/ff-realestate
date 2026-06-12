@@ -5,4 +5,5 @@ export * from './dashboard.model';
 export * from './error-response.model';
 export * from './photo.model';
 export * from './property.model';
+export * from './site-settings.model';
 export * from './testimonial.model';

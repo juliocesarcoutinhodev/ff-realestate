@@ -46,6 +46,16 @@ export class AppMenu {
                         routerLink: ['/testimonials']
                     }
                 ]
+            },
+            {
+                label: 'Configurações',
+                items: [
+                    {
+                        label: 'Configurações do Site',
+                        icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/site-settings']
+                    }
+                ]
             }
         ];
     }
