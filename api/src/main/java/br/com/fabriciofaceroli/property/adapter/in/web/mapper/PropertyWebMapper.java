@@ -26,7 +26,6 @@ public interface PropertyWebMapper {
     @Mapping(source = "id", target = "id")
     UpdatePropertyCommand toUpdateCommand(UUID id, UpdatePropertyRequest request);
 
-    @Mapping(target = "coverPhoto", expression = "java(null)")
     PropertySummaryResponse toSummaryResponse(Property property);
 
     PropertyDetailResponse toDetailResponse(PropertyDetail propertyDetail);

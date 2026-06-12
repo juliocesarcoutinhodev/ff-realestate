@@ -84,7 +84,7 @@ class ListPropertiesUseCaseTest {
                 BigDecimal.valueOf(450000), BigDecimal.valueOf(125),
                 3, 1, 2, 2,
                 null, "Jardim Mirian", "São Paulo", "SP", null,
-                "SALE", false, "ACTIVE", null, UUID.randomUUID()
+                "SALE", false, "ACTIVE", null, UUID.randomUUID(), null
         );
     }
 }

@@ -30,11 +30,25 @@ import { ZipCodeService } from '../services/zip-code.service';
     selector: 'app-property-form',
     standalone: true,
     imports: [
-        NgTemplateOutlet, ReactiveFormsModule,
-        ButtonModule, InputTextModule,
-        Breadcrumb, Card, InputNumber, Message, ProgressSpinner, Select,
-        SelectButton, Skeleton, Tabs, TabList, Tab, TabPanels, TabPanel,
-        Textarea, ToggleButton,
+        NgTemplateOutlet,
+        ReactiveFormsModule,
+        ButtonModule,
+        InputTextModule,
+        Breadcrumb,
+        Card,
+        InputNumber,
+        Message,
+        ProgressSpinner,
+        Select,
+        SelectButton,
+        Skeleton,
+        Tabs,
+        TabList,
+        Tab,
+        TabPanels,
+        TabPanel,
+        Textarea,
+        ToggleButton,
         PhotoManagerComponent
     ],
     template: `
@@ -272,10 +286,7 @@ export class PropertyFormComponent implements OnInit {
         return !!this.id;
     }
 
-    readonly breadcrumbItems = computed<MenuItem[]>(() => [
-        { label: 'Imóveis', routerLink: '/properties' },
-        { label: this.breadcrumbTitle() }
-    ]);
+    readonly breadcrumbItems = computed<MenuItem[]>(() => [{ label: 'Imóveis', routerLink: '/properties' }, { label: this.breadcrumbTitle() }]);
 
     readonly breadcrumbHome: MenuItem = { icon: 'pi pi-home', routerLink: '/dashboard' };
 
@@ -335,10 +346,13 @@ export class PropertyFormComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        this.categoryService.findAll().pipe(
-            map((r) => r.data),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((cats) => this.categories.set(cats));
+        this.categoryService
+            .findAll()
+            .pipe(
+                map((r) => r.data),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe((cats) => this.categories.set(cats));
 
         if (this.tab) {
             this.activeTab.set(this.tab);
@@ -351,7 +365,8 @@ export class PropertyFormComponent implements OnInit {
 
     private loadProperty(): void {
         this.loading.set(true);
-        this.propertyService.findById(this.id!)
+        this.propertyService
+            .findById(this.id!)
             .pipe(
                 finalize(() => this.loading.set(false)),
                 takeUntilDestroyed(this.destroyRef)
@@ -426,14 +441,16 @@ export class PropertyFormComponent implements OnInit {
         const payload = this.form.getRawValue() as unknown as PropertyForm;
 
         if (this.isEditMode) {
-            this.propertyService.update(this.id!, payload)
+            this.propertyService
+                .update(this.id!, payload)
                 .pipe(
                     finalize(() => this.loadingForm.set(false)),
                     takeUntilDestroyed(this.destroyRef)
                 )
                 .subscribe({ error: () => {} });
         } else {
-            this.propertyService.create(payload)
+            this.propertyService
+                .create(payload)
                 .pipe(
                     finalize(() => this.loadingForm.set(false)),
                     takeUntilDestroyed(this.destroyRef)

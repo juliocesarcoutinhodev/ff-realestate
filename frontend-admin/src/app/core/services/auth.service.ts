@@ -5,8 +5,7 @@ import { ApiResponse, AuthUser } from '@/app/core/models';
 import { SKIP_401_REDIRECT, SKIP_ERROR_TOAST, skipAuthRedirect } from '@/app/core/interceptors/error.interceptor';
 import { BaseService } from './base.service';
 
-const silentContext = (): HttpContext =>
-    new HttpContext().set(SKIP_401_REDIRECT, true).set(SKIP_ERROR_TOAST, true);
+const silentContext = (): HttpContext => new HttpContext().set(SKIP_401_REDIRECT, true).set(SKIP_ERROR_TOAST, true);
 
 @Injectable({ providedIn: 'root' })
 export class AuthService extends BaseService {

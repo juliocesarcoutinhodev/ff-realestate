@@ -117,8 +117,11 @@ export class AppTopbar {
 
     logout(): void {
         this.loading.set(true);
-        this.authService.logout().pipe(finalize(() => this.loading.set(false))).subscribe({
-            next: () => this.router.navigate(['/auth/login'])
-        });
+        this.authService
+            .logout()
+            .pipe(finalize(() => this.loading.set(false)))
+            .subscribe({
+                next: () => this.router.navigate(['/auth/login'])
+            });
     }
 }

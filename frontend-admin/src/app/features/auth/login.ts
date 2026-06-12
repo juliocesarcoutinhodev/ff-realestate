@@ -98,11 +98,14 @@ export class Login {
         if (this.form.invalid) return;
         this.loading.set(true);
         const { email, password } = this.form.getRawValue();
-        this.authService.login(email!, password!).pipe(finalize(() => this.loading.set(false))).subscribe({
-            next: (response) => {
-                this.authService.setCurrentUser(response.data);
-                this.router.navigate(['/']);
-            }
-        });
+        this.authService
+            .login(email!, password!)
+            .pipe(finalize(() => this.loading.set(false)))
+            .subscribe({
+                next: (response) => {
+                    this.authService.setCurrentUser(response.data);
+                    this.router.navigate(['/']);
+                }
+            });
     }
 }

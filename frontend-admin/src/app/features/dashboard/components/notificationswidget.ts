@@ -42,25 +42,11 @@ export interface ReviewEvent {
                         <td style="min-width:12rem" class="text-muted-color text-sm">
                             {{ t.text.length > 80 ? t.text.slice(0, 80) + '...' : t.text }}
                         </td>
-                        <td style="min-width:7rem">{{ t.createdAt | date:'dd/MM/yyyy' }}</td>
+                        <td style="min-width:7rem">{{ t.createdAt | date: 'dd/MM/yyyy' }}</td>
                         <td style="min-width:10rem">
                             <div class="flex gap-1">
-                                <p-button
-                                    label="Aprovar"
-                                    icon="pi pi-check"
-                                    size="small"
-                                    severity="success"
-                                    [text]="true"
-                                    (onClick)="review.emit({ id: t.id, status: 'APPROVED' })"
-                                />
-                                <p-button
-                                    label="Rejeitar"
-                                    icon="pi pi-times"
-                                    size="small"
-                                    severity="danger"
-                                    [text]="true"
-                                    (onClick)="review.emit({ id: t.id, status: 'REJECTED' })"
-                                />
+                                <p-button label="Aprovar" icon="pi pi-check" size="small" severity="success" [text]="true" (onClick)="review.emit({ id: t.id, status: 'APPROVED' })" />
+                                <p-button label="Rejeitar" icon="pi pi-times" size="small" severity="danger" [text]="true" (onClick)="review.emit({ id: t.id, status: 'REJECTED' })" />
                             </div>
                         </td>
                     </tr>

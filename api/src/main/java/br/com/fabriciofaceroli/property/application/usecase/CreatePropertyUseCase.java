@@ -56,7 +56,8 @@ public class CreatePropertyUseCase implements CreatePropertyPort {
                 Boolean.TRUE.equals(command.featured()),
                 "ACTIVE",
                 command.externalUrl(),
-                command.categoryId()
+                command.categoryId(),
+                null
         );
 
         return savePropertyPort.save(property);

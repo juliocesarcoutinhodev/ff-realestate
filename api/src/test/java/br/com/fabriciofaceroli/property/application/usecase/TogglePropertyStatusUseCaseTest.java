@@ -31,7 +31,7 @@ class TogglePropertyStatusUseCaseTest {
         return new Property(PROPERTY_ID, "Casa", "casa", null,
                 new BigDecimal("300000"), null, null, null, null, null,
                 null, null, "São Paulo", "SP", null,
-                "SALE", false, "ACTIVE", null, UUID.randomUUID());
+                "SALE", false, "ACTIVE", null, UUID.randomUUID(), null);
     }
 
     @Test
@@ -61,7 +61,7 @@ class TogglePropertyStatusUseCaseTest {
                 inactive.bathrooms(), inactive.parkingSpots(), inactive.address(),
                 inactive.neighborhood(), inactive.city(), inactive.state(), inactive.zipCode(),
                 inactive.dealType(), inactive.featured(), "INACTIVE",
-                inactive.externalUrl(), inactive.categoryId());
+                inactive.externalUrl(), inactive.categoryId(), null);
 
         when(find.findById(PROPERTY_ID)).thenReturn(Optional.of(inactiveProperty));
         when(save.save(any())).thenAnswer(inv -> inv.getArgument(0));

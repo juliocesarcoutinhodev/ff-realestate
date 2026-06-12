@@ -75,25 +75,16 @@ import { DashboardSummary } from '@/app/core/models';
             </div>
 
             <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-                <div class="card mb-0 transition-all"
-                     [class.ring-2]="hasPending()"
-                     [class.ring-yellow-300]="hasPending()">
+                <div class="card mb-0 transition-all" [class.ring-2]="hasPending()" [class.ring-yellow-300]="hasPending()">
                     <div class="flex justify-between mb-4">
                         <div>
                             <span class="block text-muted-color font-medium mb-4">Depoimentos Pendentes</span>
-                            <div class="font-medium text-xl"
-                                 [class.text-yellow-500]="hasPending()"
-                                 [class.text-surface-900]="!hasPending()">
+                            <div class="font-medium text-xl" [class.text-yellow-500]="hasPending()" [class.text-surface-900]="!hasPending()">
                                 {{ summary()?.totalPendingTestimonials ?? 0 }}
                             </div>
                         </div>
-                        <div class="flex items-center justify-center rounded-border"
-                             [class.bg-yellow-100]="hasPending()"
-                             [class.bg-purple-100]="!hasPending()"
-                             style="width:2.5rem;height:2.5rem">
-                            <i class="pi pi-clock text-xl!"
-                               [class.text-yellow-500]="hasPending()"
-                               [class.text-purple-500]="!hasPending()"></i>
+                        <div class="flex items-center justify-center rounded-border" [class.bg-yellow-100]="hasPending()" [class.bg-purple-100]="!hasPending()" style="width:2.5rem;height:2.5rem">
+                            <i class="pi pi-clock text-xl!" [class.text-yellow-500]="hasPending()" [class.text-purple-500]="!hasPending()"></i>
                         </div>
                     </div>
                     <span class="text-muted-color text-sm">Aguardando aprovação</span>

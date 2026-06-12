@@ -17,28 +17,12 @@ import { CategoryModalComponent } from '../category-modal/category-modal.compone
 @Component({
     selector: 'app-category-list',
     standalone: true,
-    imports: [
-        TableModule,
-        ButtonModule,
-        InputTextModule,
-        TooltipModule,
-        SkeletonModule,
-        Dialog,
-        ConfirmDialog,
-        IconField,
-        InputIcon,
-        CategoryModalComponent
-    ],
+    imports: [TableModule, ButtonModule, InputTextModule, TooltipModule, SkeletonModule, Dialog, ConfirmDialog, IconField, InputIcon, CategoryModalComponent],
     providers: [ConfirmationService],
     template: `
         <p-confirmdialog />
 
-        <app-category-modal
-            [category]="selectedCategory()"
-            [visible]="modalVisible()"
-            (visibleChange)="modalVisible.set($event)"
-            (saved)="onSaved()"
-        />
+        <app-category-modal [category]="selectedCategory()" [visible]="modalVisible()" (visibleChange)="modalVisible.set($event)" (saved)="onSaved()" />
 
         <div class="card">
             <div class="flex items-center justify-between mb-6">
@@ -49,13 +33,7 @@ import { CategoryModalComponent } from '../category-modal/category-modal.compone
             <div class="mb-4">
                 <p-iconfield>
                     <p-inputicon styleClass="pi pi-search" />
-                    <input
-                        pInputText
-                        [value]="searchValue()"
-                        (input)="searchValue.set($any($event.target).value)"
-                        placeholder="Buscar por nome..."
-                        class="w-full"
-                    />
+                    <input pInputText [value]="searchValue()" (input)="searchValue.set($any($event.target).value)" placeholder="Buscar por nome..." class="w-full" />
                 </p-iconfield>
             </div>
 
@@ -94,24 +72,8 @@ import { CategoryModalComponent } from '../category-modal/category-modal.compone
                         <td class="text-muted-color text-sm">{{ category.description || '—' }}</td>
                         <td>
                             <div class="flex gap-1 justify-center">
-                                <p-button
-                                    icon="pi pi-pencil"
-                                    [text]="true"
-                                    severity="secondary"
-                                    size="small"
-                                    pTooltip="Editar"
-                                    tooltipPosition="top"
-                                    (onClick)="openEdit(category, $event)"
-                                />
-                                <p-button
-                                    icon="pi pi-trash"
-                                    [text]="true"
-                                    severity="danger"
-                                    size="small"
-                                    pTooltip="Remover"
-                                    tooltipPosition="top"
-                                    (onClick)="confirmDelete(category, $event)"
-                                />
+                                <p-button icon="pi pi-pencil" [text]="true" severity="secondary" size="small" pTooltip="Editar" tooltipPosition="top" (onClick)="openEdit(category, $event)" />
+                                <p-button icon="pi pi-trash" [text]="true" severity="danger" size="small" pTooltip="Remover" tooltipPosition="top" (onClick)="confirmDelete(category, $event)" />
                             </div>
                         </td>
                     </tr>
@@ -131,14 +93,7 @@ import { CategoryModalComponent } from '../category-modal/category-modal.compone
         </div>
 
         <!-- Modal: Visualizar (read-only) -->
-        <p-dialog
-            header="Detalhes da Categoria"
-            [visible]="viewVisible()"
-            (visibleChange)="viewVisible.set($event)"
-            [modal]="true"
-            [style]="{ width: '28rem' }"
-            [draggable]="false"
-        >
+        <p-dialog header="Detalhes da Categoria" [visible]="viewVisible()" (visibleChange)="viewVisible.set($event)" [modal]="true" [style]="{ width: '28rem' }" [draggable]="false">
             @if (selectedCategory(); as cat) {
                 <div class="flex flex-col gap-5 py-2">
                     <div>
@@ -158,17 +113,8 @@ import { CategoryModalComponent } from '../category-modal/category-modal.compone
 
             <ng-template #footer>
                 <div class="flex justify-end gap-2">
-                    <p-button
-                        label="Fechar"
-                        severity="secondary"
-                        [text]="true"
-                        (onClick)="viewVisible.set(false)"
-                    />
-                    <p-button
-                        label="Editar"
-                        icon="pi pi-pencil"
-                        (onClick)="editFromView()"
-                    />
+                    <p-button label="Fechar" severity="secondary" [text]="true" (onClick)="viewVisible.set(false)" />
+                    <p-button label="Editar" icon="pi pi-pencil" (onClick)="editFromView()" />
                 </div>
             </ng-template>
         </p-dialog>

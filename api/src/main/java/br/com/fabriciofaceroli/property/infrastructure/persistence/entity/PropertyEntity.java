@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -88,6 +89,9 @@ public class PropertyEntity {
 
     @Column(name = "category_id", nullable = false)
     private UUID categoryId;
+
+    @Formula("(SELECT pp.url FROM property_photos pp WHERE pp.property_id = id AND pp.cover = true LIMIT 1)")
+    private String coverPhotoUrl;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

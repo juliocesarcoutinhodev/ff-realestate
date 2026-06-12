@@ -35,7 +35,7 @@ class UpdatePropertyUseCaseTest {
         return new Property(PROPERTY_ID, "Casa Antiga", slug, "Desc",
                 new BigDecimal("300000"), new BigDecimal("100"), 2, 0, 1, 1,
                 "Rua A, 1", "Centro", "São Paulo", "SP", "04000-000",
-                "SALE", false, "ACTIVE", null, CATEGORY_ID);
+                "SALE", false, "ACTIVE", null, CATEGORY_ID, null);
     }
 
     private static UpdatePropertyCommand command(String title, PropertyStatus status) {

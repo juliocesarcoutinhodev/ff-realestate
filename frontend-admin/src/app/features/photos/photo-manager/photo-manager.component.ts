@@ -65,23 +65,15 @@ const COVER_COLOR = '#C9A84C';
 
         <!-- Aviso: capa removida -->
         @if (deletedCoverWarning()) {
-            <p-message
-                severity="warn"
-                text="A foto de capa foi removida. Defina uma nova capa para o imóvel."
-                styleClass="w-full mt-3"
-            />
+            <p-message severity="warn" text="A foto de capa foi removida. Defina uma nova capa para o imóvel." styleClass="w-full mt-3" />
         }
 
         <!-- Galeria -->
         <div class="mt-6">
             <div class="flex items-center justify-between mb-3">
-                <span class="font-semibold text-sm text-muted-color uppercase tracking-wide">
-                    Fotos cadastradas
-                </span>
+                <span class="font-semibold text-sm text-muted-color uppercase tracking-wide"> Fotos cadastradas </span>
                 @if (reordering()) {
-                    <span class="text-xs text-muted-color flex items-center gap-1">
-                        <i class="pi pi-spin pi-spinner"></i> Salvando ordem...
-                    </span>
+                    <span class="text-xs text-muted-color flex items-center gap-1"> <i class="pi pi-spin pi-spinner"></i> Salvando ordem... </span>
                 }
             </div>
 
@@ -94,13 +86,7 @@ const COVER_COLOR = '#C9A84C';
             } @else if (photos().length === 0) {
                 <p-message severity="info" text="Nenhuma foto cadastrada ainda." styleClass="w-full" />
             } @else {
-                <div
-                    cdkDropList
-                    cdkDropListOrientation="mixed"
-                    [cdkDropListData]="photos()"
-                    (cdkDropListDropped)="onDrop($event)"
-                    class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
-                >
+                <div cdkDropList cdkDropListOrientation="mixed" [cdkDropListData]="photos()" (cdkDropListDropped)="onDrop($event)" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     @for (photo of photos(); track photo.id) {
                         <div
                             cdkDrag
@@ -116,38 +102,17 @@ const COVER_COLOR = '#C9A84C';
                                 <div class="h-40 rounded-lg bg-surface-100 dark:bg-surface-800 border-2 border-dashed border-surface-300 dark:border-surface-600"></div>
                             </ng-template>
 
-                            <img
-                                [src]="photo.url"
-                                alt="Foto do imóvel"
-                                class="w-full h-40 object-cover"
-                            />
+                            <img [src]="photo.url" alt="Foto do imóvel" class="w-full h-40 object-cover" />
 
                             @if (photo.cover) {
-                                <span
-                                    class="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded"
-                                    [style.background]="coverColor"
-                                    style="color: #fff"
-                                >⭐ Capa</span>
+                                <span class="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded" [style.background]="coverColor" style="color: #fff">⭐ Capa</span>
                             }
 
                             <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 @if (!photo.cover) {
-                                    <p-button
-                                        icon="pi pi-star"
-                                        size="small"
-                                        pTooltip="Definir como capa"
-                                        tooltipPosition="top"
-                                        (onClick)="setCover(photo)"
-                                    />
+                                    <p-button icon="pi pi-star" size="small" pTooltip="Definir como capa" tooltipPosition="top" (onClick)="setCover(photo)" />
                                 }
-                                <p-button
-                                    icon="pi pi-trash"
-                                    severity="danger"
-                                    size="small"
-                                    pTooltip="Remover foto"
-                                    tooltipPosition="top"
-                                    (onClick)="confirmDelete(photo)"
-                                />
+                                <p-button icon="pi pi-trash" severity="danger" size="small" pTooltip="Remover foto" tooltipPosition="top" (onClick)="confirmDelete(photo)" />
                             </div>
                         </div>
                     }
@@ -248,9 +213,7 @@ export class PhotoManagerComponent implements OnInit {
     setCover(photo: PropertyPhoto): void {
         const previous = [...this.photos()];
 
-        this.photos.update((ps) =>
-            ps.map((p) => ({ ...p, cover: p.id === photo.id }))
-        );
+        this.photos.update((ps) => ps.map((p) => ({ ...p, cover: p.id === photo.id })));
 
         this.photoService
             .setCover(this.propertyId, photo.id)

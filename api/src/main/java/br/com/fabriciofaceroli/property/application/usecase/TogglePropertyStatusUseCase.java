@@ -33,7 +33,8 @@ public class TogglePropertyStatusUseCase implements TogglePropertyStatusPort {
                 existing.bathrooms(), existing.parkingSpots(), existing.address(),
                 existing.neighborhood(), existing.city(), existing.state(), existing.zipCode(),
                 existing.dealType(), existing.featured(), command.status().name(),
-                existing.externalUrl(), existing.categoryId()
+                existing.externalUrl(), existing.categoryId(),
+                null
         );
 
         return savePropertyPort.save(updated);

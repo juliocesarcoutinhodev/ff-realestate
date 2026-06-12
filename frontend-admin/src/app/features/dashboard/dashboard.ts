@@ -16,10 +16,7 @@ import { NotificationsWidget, ReviewEvent } from './components/notificationswidg
                 <app-recent-sales-widget [properties]="summary()?.recentProperties ?? []" />
             </div>
             <div class="col-span-12 xl:col-span-6">
-                <app-notifications-widget
-                    [testimonials]="summary()?.pendingTestimonials ?? []"
-                    (review)="onReview($event)"
-                />
+                <app-notifications-widget [testimonials]="summary()?.pendingTestimonials ?? []" (review)="onReview($event)" />
             </div>
         </div>
     `
@@ -31,7 +28,8 @@ export class Dashboard implements OnInit {
     readonly summary = signal<DashboardSummary | null>(null);
 
     ngOnInit(): void {
-        this.dashboardService.getSummary()
+        this.dashboardService
+            .getSummary()
             .pipe(map((response) => response.data))
             .subscribe({
                 next: (data) => {
@@ -43,11 +41,12 @@ export class Dashboard implements OnInit {
 
     onReview(event: ReviewEvent): void {
         this.dashboardService.reviewTestimonial(event.id, event.status).subscribe({
-            next: () => this.summary.update((s) => {
-                if (!s) return s;
-                const filtered = s.pendingTestimonials.filter((t) => t.id !== event.id);
-                return { ...s, pendingTestimonials: filtered, totalPendingTestimonials: filtered.length };
-            })
+            next: () =>
+                this.summary.update((s) => {
+                    if (!s) return s;
+                    const filtered = s.pendingTestimonials.filter((t) => t.id !== event.id);
+                    return { ...s, pendingTestimonials: filtered, totalPendingTestimonials: filtered.length };
+                })
         });
     }
 }

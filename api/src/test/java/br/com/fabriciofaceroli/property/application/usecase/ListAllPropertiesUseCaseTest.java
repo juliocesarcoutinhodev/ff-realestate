@@ -28,7 +28,7 @@ class ListAllPropertiesUseCaseTest {
         return new Property(UUID.randomUUID(), "Título", "titulo", "Desc",
                 new BigDecimal("300000"), new BigDecimal("80"), 2, 0, 1, 1,
                 "Rua A, 1", "Centro", "Campinas", "SP", "13000-000",
-                status.name(), false, status.name(), null, UUID.randomUUID());
+                status.name(), false, status.name(), null, UUID.randomUUID(), null);
     }
 
     @Test

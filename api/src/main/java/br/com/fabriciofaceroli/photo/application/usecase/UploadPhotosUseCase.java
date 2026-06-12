@@ -69,7 +69,8 @@ public class UploadPhotosUseCase implements UploadPhotosPort {
             photos.add(new PropertyPhoto(null, command.propertyId(), url, file.originalFileName(), isCover, nextOrder + i));
         }
 
-        return savePhotosPort.saveAll(photos);
+        savePhotosPort.saveAll(photos);
+        return findPhotosByPropertyPort.findByPropertyId(command.propertyId());
     }
 
     private boolean isAllowedExtension(String fileName) {

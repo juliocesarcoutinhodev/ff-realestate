@@ -67,7 +67,8 @@ public class UpdatePropertyUseCase implements UpdatePropertyPort {
                 Boolean.TRUE.equals(command.featured()),
                 status.name(),
                 command.externalUrl(),
-                command.categoryId()
+                command.categoryId(),
+                null
         ));
     }
 

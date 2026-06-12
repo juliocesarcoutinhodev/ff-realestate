@@ -32,23 +32,13 @@ import { RecentProperty } from '@/app/core/models';
                     <tr>
                         <td style="min-width:10rem">{{ p.title }}</td>
                         <td style="min-width:6rem">{{ p.dealType === 'SALE' ? 'Venda' : 'Aluguel' }}</td>
-                        <td style="min-width:8rem">{{ p.price | currency:'BRL':'symbol':'1.0-0' }}</td>
+                        <td style="min-width:8rem">{{ p.price | currency: 'BRL' : 'symbol' : '1.0-0' }}</td>
                         <td style="min-width:6rem">
-                            <p-tag
-                                [value]="p.status === 'ACTIVE' ? 'Ativo' : 'Inativo'"
-                                [severity]="p.status === 'ACTIVE' ? 'success' : 'secondary'"
-                            />
+                            <p-tag [value]="p.status === 'ACTIVE' ? 'Ativo' : 'Inativo'" [severity]="p.status === 'ACTIVE' ? 'success' : 'secondary'" />
                         </td>
-                        <td style="min-width:8rem">{{ p.createdAt | date:'dd/MM/yyyy' }}</td>
+                        <td style="min-width:8rem">{{ p.createdAt | date: 'dd/MM/yyyy' }}</td>
                         <td style="min-width:5rem">
-                            <p-button
-                                label="Ver"
-                                icon="pi pi-eye"
-                                size="small"
-                                [text]="true"
-                                severity="secondary"
-                                (onClick)="router.navigate(['/properties', p.id, 'edit'])"
-                            />
+                            <p-button label="Ver" icon="pi pi-eye" size="small" [text]="true" severity="secondary" (onClick)="router.navigate(['/properties', p.id, 'edit'])" />
                         </td>
                     </tr>
                 </ng-template>

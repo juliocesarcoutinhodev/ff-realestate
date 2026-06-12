@@ -30,7 +30,7 @@ class DeletePropertyUseCaseTest {
         return new Property(PROPERTY_ID, "Casa", "casa", null,
                 new BigDecimal("300000"), null, null, null, null, null,
                 null, null, "São Paulo", "SP", null,
-                "SALE", false, "ACTIVE", null, UUID.randomUUID());
+                "SALE", false, "ACTIVE", null, UUID.randomUUID(), null);
     }
 
     @Test

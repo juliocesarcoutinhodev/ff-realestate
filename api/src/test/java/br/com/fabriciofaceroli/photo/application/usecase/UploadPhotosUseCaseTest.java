@@ -57,6 +57,7 @@ class UploadPhotosUseCaseTest {
         when(uploadPhotoFilePort.upload(anyString(), anyString(), any())).thenReturn("https://cdn.example.com/photo.jpg");
         var saved = List.of(new PropertyPhoto(UUID.randomUUID(), PROPERTY_ID, "https://cdn.example.com/photo.jpg", "foto.jpg", true, 0));
         when(savePhotosPort.saveAll(anyList())).thenReturn(saved);
+        when(findPhotosByPropertyPort.findByPropertyId(PROPERTY_ID)).thenReturn(saved);
 
         var command = new UploadPhotosCommand(PROPERTY_ID, List.of(photoFile("foto.jpg", "image/jpeg")));
         var result = sut.upload(command);
@@ -151,6 +152,12 @@ class UploadPhotosUseCaseTest {
         when(findPhotosByPropertyPort.existsCoverByPropertyId(PROPERTY_ID)).thenReturn(false);
         when(uploadPhotoFilePort.upload(anyString(), anyString(), any())).thenReturn("https://cdn.example.com/photo.jpg");
         when(savePhotosPort.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+        var allPhotos = List.of(
+                new PropertyPhoto(UUID.randomUUID(), PROPERTY_ID, "https://cdn.example.com/photo.jpg", "a.jpg", true, 0),
+                new PropertyPhoto(UUID.randomUUID(), PROPERTY_ID, "https://cdn.example.com/photo.jpg", "b.jpeg", false, 1),
+                new PropertyPhoto(UUID.randomUUID(), PROPERTY_ID, "https://cdn.example.com/photo.jpg", "c.png", false, 2),
+                new PropertyPhoto(UUID.randomUUID(), PROPERTY_ID, "https://cdn.example.com/photo.jpg", "d.webp", false, 3));
+        when(findPhotosByPropertyPort.findByPropertyId(PROPERTY_ID)).thenReturn(allPhotos);
 
         var command = new UploadPhotosCommand(PROPERTY_ID, List.of(
                 photoFile("a.jpg", "image/jpeg"),

@@ -23,5 +23,6 @@ public record Property(
         boolean featured,
         String status,
         String externalUrl,
-        UUID categoryId
+        UUID categoryId,
+        String coverPhoto
 ) {}

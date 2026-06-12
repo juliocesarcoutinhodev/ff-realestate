@@ -10,6 +10,7 @@ import br.com.fabriciofaceroli.photo.application.port.in.SetCoverPhotoPort;
 import br.com.fabriciofaceroli.photo.application.port.in.UploadPhotosCommand;
 import br.com.fabriciofaceroli.photo.application.port.in.UploadPhotosPort;
 import br.com.fabriciofaceroli.shared.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -75,7 +76,7 @@ public class PhotoController implements PhotoApiDocs {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<List<PhotoUploadResponse>>> reorderPhotos(
             @PathVariable UUID propertyId,
-            @RequestBody List<PhotoOrderItemRequest> items) {
+            @Valid @RequestBody List<PhotoOrderItemRequest> items) {
         var photos = reorderPhotosPort.reorder(propertyId, photoWebMapper.toOrderItems(items));
         return ResponseEntity.ok(ApiResponse.success("Ordem das fotos atualizada com sucesso.", photoWebMapper.toResponseList(photos)));
     }

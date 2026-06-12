@@ -39,7 +39,7 @@ class CreatePropertyUseCaseTest {
         return new Property(UUID.randomUUID(), "Casa", slug, "Desc",
                 new BigDecimal("450000"), new BigDecimal("125"), 3, 1, 2, 2,
                 "Rua A, 1", "Centro", "São Paulo", "SP", "04000-000",
-                "SALE", false, "ACTIVE", null, CATEGORY_ID);
+                "SALE", false, "ACTIVE", null, CATEGORY_ID, null);
     }
 
     @Test

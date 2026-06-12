@@ -207,9 +207,7 @@ export class PropertyListComponent {
         event.stopPropagation();
         const isActive = property.status === 'ACTIVE';
         this.confirmationService.confirm({
-            message: isActive
-                ? `Deseja inativar o imóvel "${property.title}"? Ele será removido do site público.`
-                : `Deseja ativar o imóvel "${property.title}"? Ele voltará a aparecer no site público.`,
+            message: isActive ? `Deseja inativar o imóvel "${property.title}"? Ele será removido do site público.` : `Deseja ativar o imóvel "${property.title}"? Ele voltará a aparecer no site público.`,
             header: isActive ? 'Inativar imóvel' : 'Ativar imóvel',
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: isActive ? 'Inativar' : 'Ativar',
@@ -249,9 +247,7 @@ export class PropertyListComponent {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
-                    this.properties.update((page) =>
-                        page ? { ...page, content: page.content.map((p) => (p.id === property.id ? { ...p, status: newStatus } : p)) } : page
-                    );
+                    this.properties.update((page) => (page ? { ...page, content: page.content.map((p) => (p.id === property.id ? { ...p, status: newStatus } : p)) } : page));
                 }
             });
     }
@@ -262,9 +258,7 @@ export class PropertyListComponent {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
-                    this.properties.update((page) =>
-                        page ? { ...page, content: page.content.filter((p) => p.id !== id), totalElements: page.totalElements - 1 } : page
-                    );
+                    this.properties.update((page) => (page ? { ...page, content: page.content.filter((p) => p.id !== id), totalElements: page.totalElements - 1 } : page));
                     this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Imóvel excluído com sucesso.' });
                 }
             });
