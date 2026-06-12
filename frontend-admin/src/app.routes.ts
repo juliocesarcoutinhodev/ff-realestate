@@ -28,7 +28,7 @@ export const appRoutes: Routes = [
             },
             {
                 path: 'testimonials',
-                loadComponent: () => import('./app/features/testimonials/testimonials').then((m) => m.Testimonials)
+                loadComponent: () => import('./app/features/testimonials/testimonial-list/testimonial-list.component').then((m) => m.TestimonialListComponent)
             }
         ]
     },

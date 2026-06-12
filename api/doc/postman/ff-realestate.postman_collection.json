@@ -2457,6 +2457,256 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Site Settings",
+      "description": "Configurações do site — dados do corretor, hero, redes sociais e SEO. GET é público. PUT e uploads de imagem requerem autenticação ADMIN.",
+      "item": [
+        {
+          "name": "Get Site Settings",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/site-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "site-settings"]
+            },
+            "description": "Retorna todas as configurações públicas do site (dados do corretor, hero, redes sociais, SEO). Público, sem autenticação. Resposta cacheada no Redis por 1 hora."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.brokerName).to.be.a('string');",
+                  "    pm.expect(json.data.whatsapp).to.be.a('string');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/site-settings" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Configurações carregadas com sucesso.\",\n    \"data\": {\n        \"brokerName\": \"Fabrício Faceroli\",\n        \"brokerCreci\": \"000000-F\",\n        \"brokerBio\": \"Corretor com mais de 15 anos de experiência em imóveis de alto padrão.\",\n        \"brokerPhotoUrl\": \"https://storage.fabriciofaceroli.com.br/ff-realestate/settings/broker-photo.jpg\",\n        \"heroImageUrl\": \"https://storage.fabriciofaceroli.com.br/ff-realestate/settings/hero-image.jpg\",\n        \"heroTitle\": \"Fabrício Faceroli\",\n        \"heroSubtitle\": \"Corretor de Imóveis de Alto Padrão\",\n        \"phone\": \"+55 (11) 99999-9999\",\n        \"whatsapp\": \"5511999999999\",\n        \"whatsappMessage\": \"Olá Fabrício, vim pelo site!\",\n        \"email\": \"contato@fabriciofaceroli.com.br\",\n        \"instagramUrl\": \"https://instagram.com/fabriciofaceroli\",\n        \"facebookUrl\": null,\n        \"linkedinUrl\": null,\n        \"metaDescription\": \"Imóveis de alto padrão em São Paulo.\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Site Settings",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"brokerName\": \"Fabrício Faceroli\",\n    \"brokerCreci\": \"000000-F\",\n    \"brokerBio\": \"Corretor com mais de 15 anos de experiência em imóveis de alto padrão em São Paulo.\",\n    \"brokerPhotoUrl\": null,\n    \"heroImageUrl\": null,\n    \"heroTitle\": \"Fabrício Faceroli\",\n    \"heroSubtitle\": \"Corretor de Imóveis de Alto Padrão\",\n    \"phone\": \"+55 (11) 99999-9999\",\n    \"whatsapp\": \"5511999999999\",\n    \"whatsappMessage\": \"Olá Fabrício, vim pelo site!\",\n    \"email\": \"contato@fabriciofaceroli.com.br\",\n    \"instagramUrl\": \"https://instagram.com/fabriciofaceroli\",\n    \"facebookUrl\": null,\n    \"linkedinUrl\": null,\n    \"metaDescription\": \"Imóveis de alto padrão em São Paulo.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/site-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "site-settings"]
+            },
+            "description": "Substitui todas as configurações de texto do site. Campos obrigatórios: brokerName, brokerCreci, whatsapp (apenas dígitos, mín 10 caracteres). Invalida o cache Redis. Requer autenticação ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.brokerName).to.be.a('string');",
+                  "    pm.expect(json.data.whatsapp).to.be.a('string');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": { "method": "PUT", "url": { "raw": "{{baseUrl}}/api/v1/site-settings" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Configurações atualizadas com sucesso.\",\n    \"data\": {\n        \"brokerName\": \"Fabrício Faceroli\",\n        \"brokerCreci\": \"000000-F\",\n        \"brokerBio\": \"Corretor com mais de 15 anos de experiência.\",\n        \"brokerPhotoUrl\": null,\n        \"heroImageUrl\": null,\n        \"heroTitle\": \"Fabrício Faceroli\",\n        \"heroSubtitle\": \"Corretor de Imóveis de Alto Padrão\",\n        \"phone\": \"+55 (11) 99999-9999\",\n        \"whatsapp\": \"5511999999999\",\n        \"whatsappMessage\": \"Olá Fabrício, vim pelo site!\",\n        \"email\": \"contato@fabriciofaceroli.com.br\",\n        \"instagramUrl\": \"https://instagram.com/fabriciofaceroli\",\n        \"facebookUrl\": null,\n        \"linkedinUrl\": null,\n        \"metaDescription\": \"Imóveis de alto padrão em São Paulo.\"\n    }\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "status": "Bad Request",
+              "code": 400,
+              "originalRequest": { "method": "PUT", "url": { "raw": "{{baseUrl}}/api/v1/site-settings" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"Validation failed\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "originalRequest": { "method": "PUT", "url": { "raw": "{{baseUrl}}/api/v1/site-settings" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 401,\n    \"error\": \"Unauthorized\",\n    \"message\": \"Não autorizado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "originalRequest": { "method": "PUT", "url": { "raw": "{{baseUrl}}/api/v1/site-settings" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 403,\n    \"error\": \"Forbidden\",\n    \"message\": \"Acesso negado.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Upload Broker Photo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Foto do corretor (jpg, jpeg, png, webp — máx 5MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/site-settings/broker-photo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "site-settings", "broker-photo"]
+            },
+            "description": "Faz upload da foto de perfil do corretor. Substitui automaticamente a imagem anterior (mesmo nome de arquivo no MinIO). Invalida o cache Redis. Aceita jpg, jpeg, png, webp — máx 5MB. Requer autenticação ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.url).to.be.a('string').and.include('broker-photo');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/site-settings/broker-photo" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Foto do corretor enviada com sucesso.\",\n    \"data\": {\n        \"url\": \"https://storage.fabriciofaceroli.com.br/ff-realestate/settings/broker-photo.jpg\"\n    }\n}"
+            },
+            {
+              "name": "400 Bad Request — Arquivo muito grande",
+              "status": "Bad Request",
+              "code": 400,
+              "originalRequest": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/site-settings/broker-photo" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 422,\n    \"error\": \"Unprocessable Entity\",\n    \"message\": \"Arquivo muito grande. Tamanho máximo permitido: 5MB.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "415 Unsupported Media Type",
+              "status": "Unsupported Media Type",
+              "code": 415,
+              "originalRequest": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/site-settings/broker-photo" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 415,\n    \"error\": \"Unsupported Media Type\",\n    \"message\": \"Formato de arquivo não suportado. Formatos aceitos: jpg, jpeg, png, webp.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Upload Hero Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Imagem hero da home (jpg, jpeg, png, webp — máx 5MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/site-settings/hero-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "site-settings", "hero-image"]
+            },
+            "description": "Faz upload da imagem principal do hero da home. Substitui automaticamente a imagem anterior. Invalida o cache Redis. Aceita jpg, jpeg, png, webp — máx 5MB. Requer autenticação ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.data.url).to.be.a('string').and.include('hero-image');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "originalRequest": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/site-settings/hero-image" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Imagem hero enviada com sucesso.\",\n    \"data\": {\n        \"url\": \"https://storage.fabriciofaceroli.com.br/ff-realestate/settings/hero-image.jpg\"\n    }\n}"
+            },
+            {
+              "name": "400 Bad Request — Arquivo muito grande",
+              "status": "Bad Request",
+              "code": 400,
+              "originalRequest": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/site-settings/hero-image" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 422,\n    \"error\": \"Unprocessable Entity\",\n    \"message\": \"Arquivo muito grande. Tamanho máximo permitido: 5MB.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            },
+            {
+              "name": "415 Unsupported Media Type",
+              "status": "Unsupported Media Type",
+              "code": 415,
+              "originalRequest": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/site-settings/hero-image" } },
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"status\": 415,\n    \"error\": \"Unsupported Media Type\",\n    \"message\": \"Formato de arquivo não suportado. Formatos aceitos: jpg, jpeg, png, webp.\",\n    \"timestamp\": \"2025-01-01T12:00:00Z\"\n}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

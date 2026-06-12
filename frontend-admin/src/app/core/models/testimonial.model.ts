@@ -7,3 +7,9 @@ export interface Testimonial {
     property?: { id: string; title: string; slug: string };
     createdAt: string;
 }
+
+export interface TestimonialFilters {
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+    page?: number;
+    size?: number;
+}

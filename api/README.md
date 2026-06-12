@@ -287,6 +287,33 @@ br.com.fabriciofaceroli
 - Apenas depoimentos `APPROVED` aparecem na listagem pública
 - Um depoimento já revisado (não `PENDING`) retorna 409 se revisado novamente
 
+### Site Settings
+
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/v1/site-settings` | Não | Retorna configurações públicas do site (corretor, hero, redes sociais, SEO). Resposta cacheada no Redis por 1 hora. |
+| PUT | `/api/v1/site-settings` | ADMIN | Atualiza todas as configurações de texto do site. Invalida cache Redis. |
+| POST | `/api/v1/site-settings/broker-photo` | ADMIN | Upload da foto de perfil do corretor (`multipart/form-data`, campo `file`). Substitui a imagem anterior. Invalida cache Redis. |
+| POST | `/api/v1/site-settings/hero-image` | ADMIN | Upload da imagem principal do hero (`multipart/form-data`, campo `file`). Substitui a imagem anterior. Invalida cache Redis. |
+
+**Campos — PUT `/api/v1/site-settings`:**
+
+| Campo | Tipo | Obrigatório | Validação |
+|---|---|---|---|
+| `brokerName` | string | Sim | Não vazio |
+| `brokerCreci` | string | Sim | Não vazio |
+| `whatsapp` | string | Sim | Apenas dígitos, mínimo 10 caracteres |
+| `email` | string | Não | Formato de e-mail válido |
+| `instagramUrl`, `facebookUrl`, `linkedinUrl`, `brokerPhotoUrl`, `heroImageUrl` | string | Não | URL válida |
+| demais campos | string | Não | — |
+
+**Upload de imagens (broker-photo e hero-image):**
+- Formatos aceitos: `jpg`, `jpeg`, `png`, `webp`
+- Tamanho máximo: 5 MB
+- Objeto salvo no MinIO com nome fixo: `settings/broker-photo.{ext}` ou `settings/hero-image.{ext}`
+- Imagem anterior é deletada automaticamente antes do novo upload
+- Retorna `200 OK` com `{ "url": "https://..." }`
+
 Documentação completa: `http://localhost:8080/swagger-ui.html`
 
 ---
@@ -343,6 +370,10 @@ Fluxo recomendado:
 28. `Admin › Testimonials › List Testimonials (Admin)` — lista todos os depoimentos paginados; filtre por `?status=PENDING|APPROVED|REJECTED`; requer token ADMIN
 29. `Admin › Testimonials › Review Testimonial` — aprova ou rejeita um depoimento `PENDING`; body `{ "status": "APPROVED" }`; retorna 409 se já revisado; requer token ADMIN
 30. `Admin › Testimonials › Delete Testimonial` — remove permanentemente um depoimento; retorna 204; requer token ADMIN
+31. `Site Settings › Get Site Settings` — retorna configurações públicas do site sem autenticação; resposta cacheada 1 hora no Redis
+32. `Site Settings › Update Site Settings` — substitui todas as configurações de texto; `brokerName`, `brokerCreci` e `whatsapp` (só dígitos, mín 10) são obrigatórios; invalida cache Redis; requer token ADMIN
+33. `Site Settings › Upload Broker Photo` — upload da foto do corretor via `multipart/form-data` (campo `file`); aceita jpg, jpeg, png, webp até 5MB; substitui imagem anterior; invalida cache Redis; requer token ADMIN
+34. `Site Settings › Upload Hero Image` — upload da imagem hero via `multipart/form-data` (campo `file`); mesmas regras de formato/tamanho; invalida cache Redis; requer token ADMIN
 
 ---
 
