@@ -1,0 +1,119 @@
+<header class="absolute top-0 left-0 right-0 z-50 w-full">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a routerLink="/" class="flex flex-col">
+      <span class="font-serif text-2xl font-semibold text-foreground leading-none tracking-wide">
+        Fabrício <span class="text-gold">Faceroli</span>
+      </span>
+      <span class="text-[10px] text-muted uppercase tracking-[0.2em] mt-0.5">
+        Corretor de Imóveis
+      </span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav aria-label="Navegação principal" class="hidden md:flex items-center gap-8">
+      <a routerLink="/"
+         routerLinkActive="!text-gold"
+         [routerLinkActiveOptions]="{ exact: true }"
+         class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
+        Início
+      </a>
+      <a routerLink="/imoveis"
+         routerLinkActive="!text-gold"
+         class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
+        Imóveis
+      </a>
+      <a routerLink="/sobre"
+         routerLinkActive="!text-gold"
+         class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
+        Sobre
+      </a>
+      <a routerLink="/contato"
+         routerLinkActive="!text-gold"
+         class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
+        Contato
+      </a>
+    </nav>
+
+    <!-- CTA + Hamburger -->
+    <div class="flex items-center gap-3">
+      @if (whatsappUrl()) {
+        <a [href]="whatsappUrl()"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="hidden md:inline-flex items-center border border-gold text-gold px-5 py-2 text-sm font-sans tracking-wide hover:bg-gold hover:text-gold-foreground transition-all duration-200">
+          Fale Comigo
+        </a>
+      }
+
+      <button type="button"
+              class="md:hidden text-foreground p-1"
+              (click)="toggleMobileMenu()"
+              [attr.aria-expanded]="mobileMenuOpen()"
+              aria-label="Abrir menu de navegação">
+        @if (mobileMenuOpen()) {
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen()) {
+    <nav aria-label="Navegação mobile"
+         class="md:hidden bg-primary/95 backdrop-blur-md border-t border-border/30 py-6 px-6">
+      <ul class="flex flex-col gap-5" role="list">
+        <li>
+          <a routerLink="/"
+             routerLinkActive="!text-gold"
+             [routerLinkActiveOptions]="{ exact: true }"
+             (click)="mobileMenuOpen.set(false)"
+             class="text-foreground/80 hover:text-gold transition-colors text-base font-sans">
+            Início
+          </a>
+        </li>
+        <li>
+          <a routerLink="/imoveis"
+             routerLinkActive="!text-gold"
+             (click)="mobileMenuOpen.set(false)"
+             class="text-foreground/80 hover:text-gold transition-colors text-base font-sans">
+            Imóveis
+          </a>
+        </li>
+        <li>
+          <a routerLink="/sobre"
+             routerLinkActive="!text-gold"
+             (click)="mobileMenuOpen.set(false)"
+             class="text-foreground/80 hover:text-gold transition-colors text-base font-sans">
+            Sobre
+          </a>
+        </li>
+        <li>
+          <a routerLink="/contato"
+             routerLinkActive="!text-gold"
+             (click)="mobileMenuOpen.set(false)"
+             class="text-foreground/80 hover:text-gold transition-colors text-base font-sans">
+            Contato
+          </a>
+        </li>
+        @if (whatsappUrl()) {
+          <li class="pt-2">
+            <a [href]="whatsappUrl()"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="inline-block border border-gold text-gold px-5 py-2 text-sm font-sans tracking-wide hover:bg-gold hover:text-gold-foreground transition-all duration-200">
+              Fale Comigo
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  }
+</header>
