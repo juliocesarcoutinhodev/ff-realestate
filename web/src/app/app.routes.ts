@@ -12,11 +12,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/home/home.component'),
       },
       {
-        path: 'imoveis',
+        path: 'properties',
         loadComponent: () => import('./features/properties/property-list/property-list.component'),
       },
       {
-        path: 'imoveis/:slug',
+        path: 'properties/:slug',
         loadComponent: () =>
           import('./features/properties/property-detail/property-detail.component'),
       },

@@ -29,6 +29,14 @@
   --shadow-luxe: 0 30px 60px -20px rgba(0,0,0,0.6);
 }
 
+@utility bg-gradient-gold {
+  background: var(--gradient-gold);
+}
+
+@utility hero-overlay {
+  background: var(--gradient-hero);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

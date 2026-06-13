@@ -1,0 +1,58 @@
+<section class="py-28 bg-background" aria-labelledby="featured-heading">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <!-- Section header -->
+    <div class="text-center mb-16">
+      <div class="flex items-center gap-4 justify-center mb-5" aria-hidden="true">
+        <span class="block h-px flex-1 max-w-20 bg-gold/40"></span>
+        <span class="font-sans text-xs text-gold uppercase tracking-[0.2em]">Portfólio Selecionado</span>
+        <span class="block h-px flex-1 max-w-20 bg-gold/40"></span>
+      </div>
+      <h2 id="featured-heading" class="font-serif text-4xl md:text-5xl text-foreground mb-4">
+        Imóveis em destaque
+      </h2>
+      <p class="font-sans text-muted text-base max-w-md mx-auto">
+        Uma seleção criteriosa das melhores oportunidades do momento.
+      </p>
+    </div>
+
+    <!-- Skeleton -->
+    @if (properties().length === 0) {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8" aria-busy="true" aria-label="Carregando imóveis">
+        @for (item of skeletonItems; track item) {
+          <div class="animate-pulse bg-surface rounded-2xl overflow-hidden">
+            <div class="aspect-video bg-border"></div>
+            <div class="p-6 space-y-3">
+              <div class="h-5 bg-border rounded w-3/4"></div>
+              <div class="h-4 bg-border rounded w-1/2"></div>
+              <div class="h-6 bg-border rounded w-2/5 mt-2"></div>
+              <div class="flex gap-4 pt-4 border-t border-border/50">
+                <div class="h-3 bg-border rounded w-12"></div>
+                <div class="h-3 bg-border rounded w-12"></div>
+                <div class="h-3 bg-border rounded w-12"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+    <!-- Cards -->
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        @for (property of properties(); track property.id) {
+          <app-property-card [property]="property" />
+        }
+      </div>
+    }
+
+    <!-- Link to all properties -->
+    <div class="text-center mt-12">
+      <a
+        routerLink="/properties"
+        class="inline-flex items-center gap-2 font-sans text-sm text-gold border-b border-gold/40 pb-1 transition-colors duration-200 hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+      >
+        Ver todos os imóveis →
+      </a>
+    </div>
+  </div>
+</section>

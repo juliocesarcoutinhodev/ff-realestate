@@ -1,6 +1,6 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
-  { path: 'imoveis/:slug', renderMode: RenderMode.Server },
+  { path: 'properties/:slug', renderMode: RenderMode.Server },
   { path: '**', renderMode: RenderMode.Prerender },
 ];
