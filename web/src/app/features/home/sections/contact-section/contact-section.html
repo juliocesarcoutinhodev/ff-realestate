@@ -1,0 +1,66 @@
+<section id="contact" class="py-28 bg-primary/20 border-t border-border" aria-labelledby="contact-heading">
+  <div class="max-w-3xl mx-auto px-6 text-center">
+
+    <!-- Section header -->
+    <div class="flex items-center gap-4 justify-center mb-5" aria-hidden="true">
+      <span class="block h-px flex-1 max-w-20 bg-gold/40"></span>
+      <span class="font-sans text-xs text-gold uppercase tracking-[0.2em]">Contato</span>
+      <span class="block h-px flex-1 max-w-20 bg-gold/40"></span>
+    </div>
+
+    <h2 id="contact-heading" class="font-serif text-4xl md:text-5xl text-foreground mb-8">
+      Pronto para encontrar o seu imóvel ideal?
+    </h2>
+
+    <!-- Email · Phone -->
+    @if (settings()?.email || settings()?.phone) {
+      <p class="font-sans text-muted mb-10 flex flex-wrap items-center justify-center gap-x-3">
+        @if (settings()?.email) {
+          <a
+            [href]="'mailto:' + settings()!.email"
+            class="hover:text-gold transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+          >
+            {{ settings()!.email }}
+          </a>
+        }
+        @if (settings()?.email && settings()?.phone) {
+          <span aria-hidden="true">·</span>
+        }
+        @if (settings()?.phone) {
+          <a
+            [href]="'tel:' + settings()!.phone"
+            class="hover:text-gold transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+          >
+            {{ settings()!.phone }}
+          </a>
+        }
+      </p>
+    }
+
+    <!-- CTA buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      @if (whatsappUrl()) {
+        <a
+          [href]="whatsappUrl()!"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-8 py-4 font-sans text-sm font-medium text-gold-foreground rounded-sm transition-opacity hover:opacity-90 bg-gradient-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+        >
+          Falar no WhatsApp →
+        </a>
+      }
+
+      @if (settings()?.instagramUrl) {
+        <a
+          [href]="settings()!.instagramUrl!"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-8 py-4 font-sans text-sm font-medium text-foreground border border-foreground/30 rounded-sm transition-colors hover:border-foreground/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+        >
+          Instagram
+        </a>
+      }
+    </div>
+
+  </div>
+</section>

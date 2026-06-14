@@ -1,0 +1,71 @@
+@if (testimonials().length > 0) {
+  <section class="py-28 bg-surface/30 border-y border-border" aria-labelledby="testimonials-heading">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <!-- Section header -->
+      <div class="text-center mb-16">
+        <div class="flex items-center gap-4 justify-center mb-5" aria-hidden="true">
+          <span class="block h-px flex-1 max-w-20 bg-gold/40"></span>
+          <span class="font-sans text-xs text-gold uppercase tracking-[0.2em]">Depoimentos</span>
+          <span class="block h-px flex-1 max-w-20 bg-gold/40"></span>
+        </div>
+        <h2 id="testimonials-heading" class="font-serif text-4xl md:text-5xl text-foreground">
+          Clientes que confiaram
+        </h2>
+      </div>
+
+      <!-- Cards grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        @for (testimonial of testimonials(); track testimonial.id) {
+          <article class="bg-surface rounded-2xl p-8 flex flex-col gap-6">
+
+            <!-- Quote icon -->
+            <svg class="w-8 h-8 text-gold shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+            </svg>
+
+            <!-- Testimonial text -->
+            <p class="font-serif text-xl italic text-foreground/90 leading-relaxed flex-1">
+              "{{ testimonial.text }}"
+            </p>
+
+            <!-- Client info + stars -->
+            <div class="border-t border-border pt-6 flex items-center justify-between gap-4">
+              <div class="min-w-0">
+                <p class="font-sans font-medium text-foreground text-sm truncate">
+                  {{ testimonial.clientName }}
+                </p>
+                @if (testimonial.clientRole) {
+                  <p class="font-sans text-muted text-xs mt-0.5 truncate">{{ testimonial.clientRole }}</p>
+                } @else if (testimonial.property) {
+                  <p class="font-sans text-muted text-xs mt-0.5 truncate">{{ testimonial.property.title }}</p>
+                }
+              </div>
+
+              <div
+                class="flex gap-0.5 shrink-0"
+                role="img"
+                [attr.aria-label]="testimonial.rating + ' de 5 estrelas'"
+              >
+                @for (star of starIndexes; track star) {
+                  <svg
+                    class="w-4 h-4"
+                    [class.text-gold]="star <= testimonial.rating"
+                    [class.text-border]="star > testimonial.rating"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                }
+              </div>
+            </div>
+
+          </article>
+        }
+      </div>
+
+    </div>
+  </section>
+}

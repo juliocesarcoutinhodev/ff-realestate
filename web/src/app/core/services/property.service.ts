@@ -9,7 +9,7 @@ export interface PropertyFilters {
   page?: number;
   size?: number;
   dealType?: 'SALE' | 'RENT';
-  categorySlug?: string;
+  categoryId?: string;
   city?: string;
   featured?: boolean;
 }
@@ -24,7 +24,7 @@ export class PropertyService {
     if (filters?.page !== undefined) params = params.set('page', filters.page);
     if (filters?.size !== undefined) params = params.set('size', filters.size);
     if (filters?.dealType) params = params.set('dealType', filters.dealType);
-    if (filters?.categorySlug) params = params.set('categorySlug', filters.categorySlug);
+    if (filters?.categoryId) params = params.set('categoryId', filters.categoryId);
     if (filters?.city) params = params.set('city', filters.city);
     if (filters?.featured !== undefined) params = params.set('featured', filters.featured);
     return this.http.get<ApiResponse<PageResponse<Property>>>(this.apiUrl, { params });

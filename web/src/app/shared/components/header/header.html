@@ -24,13 +24,11 @@
          class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
         Imóveis
       </a>
-      <a routerLink="/sobre"
-         routerLinkActive="!text-gold"
+      <a [routerLink]="['/']" fragment="about"
          class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
         Sobre
       </a>
-      <a routerLink="/contato"
-         routerLinkActive="!text-gold"
+      <a [routerLink]="['/']" fragment="contact"
          class="text-foreground/80 hover:text-gold transition-colors duration-200 text-sm font-sans tracking-wide">
         Contato
       </a>
@@ -88,16 +86,14 @@
           </a>
         </li>
         <li>
-          <a routerLink="/sobre"
-             routerLinkActive="!text-gold"
+          <a [routerLink]="['/']" fragment="about"
              (click)="mobileMenuOpen.set(false)"
              class="text-foreground/80 hover:text-gold transition-colors text-base font-sans">
             Sobre
           </a>
         </li>
         <li>
-          <a routerLink="/contato"
-             routerLinkActive="!text-gold"
+          <a [routerLink]="['/']" fragment="contact"
              (click)="mobileMenuOpen.set(false)"
              class="text-foreground/80 hover:text-gold transition-colors text-base font-sans">
             Contato
