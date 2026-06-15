@@ -53,12 +53,12 @@ Os artefatos de build são gerados em `dist/web/`.
 
 ## Environments
 
-| Arquivo | Ambiente | API base URL |
-|---|---|---|
-| `src/environments/environment.ts` | desenvolvimento | `http://localhost:8080/api/v1` |
-| `src/environments/environment.production.ts` | produção | `https://api.fabriciofaceroli.com.br/api/v1` |
+| Arquivo | Ambiente | `apiUrl` | `siteUrl` |
+|---|---|---|---|
+| `environment.ts` | desenvolvimento | `http://localhost:8080/api/v1` | `http://localhost:4200` |
+| `environment.production.ts` | produção | `https://api.fabriciofaceroli.com.br/api/v1` | `https://fabriciofaceroli.com.br` |
 
-O `angular.json` usa `fileReplacements` para trocar o environment automaticamente no build de produção.
+O `angular.json` usa `fileReplacements` para trocar o environment automaticamente no build de produção. O `siteUrl` é usado para gerar canonical URLs corretas em SSR.
 
 ---
 
@@ -96,7 +96,7 @@ Configurado em `src/app/app.routes.server.ts`:
 
 | Rota | Modo | Motivo |
 |---|---|---|
-| `imoveis/:slug` | `RenderMode.Server` | Conteúdo dinâmico por slug |
+| `/properties/:slug` | `RenderMode.Server` | Conteúdo dinâmico por slug |
 | `**` (demais) | `RenderMode.Prerender` | Geração estática em build |
 
 ---
@@ -106,8 +106,8 @@ Configurado em `src/app/app.routes.server.ts`:
 | Rota | Componente | Lazy? |
 |---|---|---|
 | `/` | `HomeComponent` | ✅ |
-| `/imoveis` | `PropertyListComponent` | ✅ |
-| `/imoveis/:slug` | `PropertyDetailComponent` | ✅ |
+| `/properties` | `PropertyListComponent` | ✅ |
+| `/properties/:slug` | `PropertyDetailComponent` | ✅ |
 | `**` | `NotFoundComponent` | ✅ |
 
 Todas as rotas são filhas de `SiteLayoutComponent` (eager), que renderiza header, footer e WhatsApp FAB.
@@ -122,9 +122,31 @@ Todas as rotas são filhas de `SiteLayoutComponent` (eager), que renderiza heade
 |---|---|
 | STORY-00 | Estrutura Angular 21 SSR, design system `@theme` com paleta luxo, fontes Cormorant Garamond + DM Sans, `postcss.config.json` para Tailwind v4 |
 | STORY-01 | Models TypeScript: `Property`, `PropertyPhoto`, `Category`, `Testimonial`, `SiteSettings`, `ApiResponse<T>`, `PageResponse<T>` |
-| STORY-02 | `PropertyService`, `CategoryService`, `TestimonialService`, `SiteSettingsService` com signals reativos (`signal()`, `computed()`) |
-| STORY-03 | `HeaderComponent` (desktop + menu mobile com toggle), `FooterComponent` (3 colunas), `WhatsappFabComponent` (FAB fixo), `SiteLayoutComponent` |
-| STORY-04 | Routing com lazy loading, SSR render modes, `withComponentInputBinding()`, `withInMemoryScrolling()` |
+| STORY-02 | `PropertyService`, `CategoryService`, `TestimonialService`, `SiteSettingsService` com signals reativos |
+| STORY-03 | `HeaderComponent` (desktop + menu mobile), `FooterComponent`, `WhatsappFabComponent`, `SiteLayoutComponent` |
+| STORY-04 | Routing com lazy loading, SSR render modes, `withComponentInputBinding()`, `withInMemoryScrolling()`, `withViewTransitions()` |
+
+### EPIC-01 · Home Page (STORY-00 a STORY-06)
+
+| Story | O que foi entregue |
+|---|---|
+| STORY-00 | `HomeComponent` com SSR: `forkJoin` de settings + imóveis em destaque + depoimentos, meta tags dinâmicas (title, description, og:image) |
+| STORY-01 | `HeroSectionComponent` — hero fullscreen com imagem de fundo, headline, subtítulo e CTA em dourado |
+| STORY-02 | `FeaturedPropertiesComponent` — grid 3 colunas com skeleton `animate-pulse`, link "Ver todos os imóveis" |
+| STORY-03 | `PropertyCardComponent` (shared) — card com imagem `aspect-[4/3]`, badges de tipo e categoria, specs, preço e link para detalhe |
+| STORY-04 | `TestimonialsSectionComponent` — carrossel de depoimentos aprovados |
+| STORY-05 | `AboutSectionComponent` — seção sobre o corretor com foto e texto das configurações do site |
+| STORY-06 | `ContactSectionComponent` — dados de contato e link WhatsApp |
+
+### EPIC-02 · Property Listing (STORY-00 a STORY-04)
+
+| Story | O que foi entregue |
+|---|---|
+| STORY-00 | `PropertyListComponent` com 7 signals (`properties`, `totalElements`, `totalPages`, `currentPage`, `loading`, `loadingMore`, `selectedDealType`, `selectedCategorySlug`, `selectedCity`), filtros sincronizados com query params (`?type`, `?category`, `?city`), `shareReplay(1)` para cache de categorias |
+| STORY-01 | `FilterBarComponent` — desktop: barra `border-y` com chips de tipo, dropdowns de categoria e cidade, contador; mobile: botão "Filtrar" + bottom sheet com filtros pendentes, "Aplicar filtros" e overlay com ESC via `host` |
+| STORY-02 | Grid responsivo (`grid-cols-1/2/3 gap-8`) usando `PropertyCardComponent`, skeleton `aspect-[4/3] bg-surface rounded-sm animate-pulse`, estado vazio com "Limpar filtros" |
+| STORY-03 | Botão "Carregar mais imóveis" com `loadingMore` spinner, estilo `text-xs uppercase tracking-widest`, contador "Exibindo X de Y imóveis", acumulação via `properties.update()` |
+| STORY-04 | Header com `pt-40 pb-16`, linha dourada + label "Portfólio", canonical URL via `DOCUMENT`, JSON-LD `ItemList` injetado no `<head>` com cleanup no destroy, `siteUrl` adicionado ao environment |
 
 ---
 
@@ -133,24 +155,24 @@ Todas as rotas são filhas de `SiteLayoutComponent` (eager), que renderiza heade
 ```text
 src/
 ├── environments/
-│   ├── environment.ts                        → dev (localhost:8080)
-│   └── environment.production.ts            → prod
-├── styles.css                               → design system @theme + Tailwind import
+│   ├── environment.ts                        → dev (apiUrl + siteUrl)
+│   └── environment.production.ts            → prod (apiUrl + siteUrl)
+├── styles.css                               → design system @theme + Tailwind + view transitions CSS
 └── app/
     ├── app.ts                               → AppComponent (apenas <router-outlet>)
-    ├── app.config.ts                        → provideRouter, provideHttpClient, provideClientHydration
+    ├── app.config.ts                        → provideRouter (withViewTransitions, withInMemoryScrolling), provideHttpClient, provideClientHydration
     ├── app.routes.ts                        → rotas com lazy loading
     ├── app.routes.server.ts                 → SSR render modes por rota
     ├── core/
     │   ├── models/
     │   │   ├── api-response.model.ts        → ApiResponse<T>, PageResponse<T>
-    │   │   ├── property.model.ts            → Property, PropertyPhoto
+    │   │   ├── property.model.ts            → Property, PropertyPhoto, PropertyFilterSelection
     │   │   ├── category.model.ts            → Category
     │   │   ├── testimonial.model.ts         → Testimonial
     │   │   ├── site-settings.model.ts       → SiteSettings
     │   │   └── index.ts                     → barrel export
     │   └── services/
-    │       ├── property.service.ts          → findAll(), findBySlug(), getFeatured()
+    │       ├── property.service.ts          → findAll(filters?), findBySlug()
     │       ├── category.service.ts          → findAll()
     │       ├── testimonial.service.ts       → findAll()
     │       └── site-settings.service.ts     → get(), signals: settings, whatsappUrl
@@ -162,18 +184,31 @@ src/
     │       │   ├── header.ts                → desktop nav + menu mobile com toggle signal
     │       │   └── header.html
     │       ├── footer/
-    │       │   ├── footer.ts                → currentYear, signals de settings
+    │       │   ├── footer.ts
     │       │   └── footer.html              → 3 colunas: identidade, contato, navegação
+    │       ├── property-card/
+    │       │   ├── property-card.ts         → computed: location, dealTypeLabel, isRent
+    │       │   └── property-card.html       → imagem, badges, specs, preço, CTA
     │       └── whatsapp-fab/
     │           └── whatsapp-fab.ts          → FAB fixo, visível apenas quando whatsappUrl()
     └── features/
         ├── home/
-        │   └── home.component.ts            → meta tags SEO (a implementar: hero, destaques)
+        │   ├── home.component.ts            → forkJoin SSR, meta tags dinâmicas
+        │   └── sections/
+        │       ├── hero-section/            → hero fullscreen com settings
+        │       ├── featured-properties/     → grid 3 colunas + skeleton
+        │       ├── testimonials-section/    → carrossel de depoimentos
+        │       ├── about-section/           → seção sobre com foto
+        │       └── contact-section/         → contato e WhatsApp
         ├── properties/
+        │   ├── filter-bar/
+        │   │   ├── filter-bar.component.ts  → input/output signals, desktop + mobile bottom sheet
+        │   │   └── filter-bar.component.html
         │   ├── property-list/
-        │   │   └── property-list.component.ts → (a implementar: listagem + filtros)
+        │   │   ├── property-list.component.ts  → 7 signals, query param sync, canonical, JSON-LD
+        │   │   └── property-list.component.html
         │   └── property-detail/
-        │       └── property-detail.component.ts → input slug via withComponentInputBinding
+        │       └── property-detail.component.ts → (a implementar — EPIC-03)
         └── not-found/
             └── not-found.component.ts       → 404 com robots: noindex
 ```
@@ -188,11 +223,21 @@ O Angular (`@angular/build`) reconhece **apenas** `postcss.config.json` e `.post
 
 ### Signals
 
-Toda a gestão de estado usa a API de signals do Angular 21: `signal()`, `computed()`, `input()`, `effect()`. Não há `NgRx` nem `BehaviorSubject`.
+Toda a gestão de estado usa a API de signals do Angular 21: `signal()`, `computed()`, `input()`, `output()`, `toSignal()`. Não há `NgRx` nem `BehaviorSubject`.
 
 ### Lazy loading
 
 Todos os componentes de página usam `export default class` e são carregados via `loadComponent: () => import(...)` para code splitting automático.
+
+### View Transitions
+
+`withViewTransitions()` ativo no router com keyframes customizados em `styles.css` (`::view-transition-old/new(root)`). Produz um fade com leve deslocamento vertical entre rotas. Graceful fallback em browsers sem suporte (Firefox, Safari < 18).
+
+### SEO
+
+- Meta tags (`title`, `description`, `og:*`) via `Title` e `Meta` services do Angular
+- Canonical URL via `DOCUMENT` injection (SSR-safe), usando `environment.siteUrl`
+- JSON-LD Schema.org via `DOCUMENT` com `<script type="application/ld+json">` e cleanup em `destroyRef.onDestroy()`
 
 ---
 
