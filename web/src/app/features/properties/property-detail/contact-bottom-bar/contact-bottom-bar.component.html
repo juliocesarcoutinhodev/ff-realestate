@@ -1,0 +1,27 @@
+<div class="fixed bottom-0 inset-x-0 lg:hidden bg-surface border-t border-border/60 px-4 pt-3 pb-safe z-40">
+  <div class="flex items-center gap-3">
+
+    <!-- Price -->
+    <div class="flex-1 min-w-0">
+      <p class="font-serif text-xl text-gold leading-tight truncate">
+        {{ property().price | currency:'BRL':'symbol':'1.0-0' }}
+        @if (isRent()) {
+          <span class="font-sans text-xs text-muted font-normal">/mês</span>
+        }
+      </p>
+    </div>
+
+    <!-- WhatsApp Button -->
+    @if (whatsappUrl()) {
+      <a
+        [href]="whatsappUrl()!"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex-1 block text-center py-3 font-sans text-sm font-semibold text-gold-foreground bg-gradient-gold rounded-sm transition-opacity duration-200 hover:opacity-90 active:opacity-80"
+      >
+        WhatsApp →
+      </a>
+    }
+
+  </div>
+</div>

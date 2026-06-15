@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -18,6 +18,13 @@ export interface PropertyFilters {
 export class PropertyService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/properties`;
+
+  private readonly _previousFilters = signal<Record<string, string>>({});
+  readonly previousFilters = this._previousFilters.asReadonly();
+
+  savePreviousFilters(params: Record<string, string>): void {
+    this._previousFilters.set(params);
+  }
 
   findAll(filters?: PropertyFilters): Observable<ApiResponse<PageResponse<Property>>> {
     let params = new HttpParams();

@@ -60,6 +60,7 @@ export default class PropertyListComponent implements OnInit {
   ngOnInit(): void {
     this.setMetaTags();
     this.setupReactiveLoading();
+    this.saveFiltersOnLeave();
   }
 
   onFiltersChanged(selection: PropertyFilterSelection): void {
@@ -131,6 +132,16 @@ export default class PropertyListComponent implements OnInit {
         this.totalPages.set(response.data.totalPages);
         this.loading.set(false);
       });
+  }
+
+  private saveFiltersOnLeave(): void {
+    this.destroyRef.onDestroy(() => {
+      const params: Record<string, string> = {};
+      if (this.selectedDealType()) params['type'] = this.selectedDealType()!;
+      if (this.selectedCategorySlug()) params['category'] = this.selectedCategorySlug()!;
+      if (this.selectedCity()) params['city'] = this.selectedCity()!;
+      this.propertyService.savePreviousFilters(params);
+    });
   }
 
   private setMetaTags(): void {

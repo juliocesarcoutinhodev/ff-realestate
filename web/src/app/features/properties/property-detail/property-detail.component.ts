@@ -11,6 +11,7 @@ import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PhotoGalleryComponent } from './photo-gallery/photo-gallery.component';
 import { ContactSidebarComponent } from './contact-sidebar/contact-sidebar.component';
+import { ContactBottomBarComponent } from './contact-bottom-bar/contact-bottom-bar.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
@@ -23,7 +24,7 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-property-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, PhotoGalleryComponent, ContactSidebarComponent],
+  imports: [RouterLink, PhotoGalleryComponent, ContactSidebarComponent, ContactBottomBarComponent],
   templateUrl: './property-detail.component.html',
 })
 export default class PropertyDetailComponent implements OnInit {
@@ -36,6 +37,7 @@ export default class PropertyDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly settings = this.siteSettingsService.settings;
+  readonly previousFilters = this.propertyService.previousFilters;
 
   readonly property = signal<Property | null>(null);
   readonly loading = signal(true);

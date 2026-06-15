@@ -148,6 +148,17 @@ Todas as rotas são filhas de `SiteLayoutComponent` (eager), que renderiza heade
 | STORY-03 | Botão "Carregar mais imóveis" com `loadingMore` spinner, estilo `text-xs uppercase tracking-widest`, contador "Exibindo X de Y imóveis", acumulação via `properties.update()` |
 | STORY-04 | Header com `pt-40 pb-16`, linha dourada + label "Portfólio", canonical URL via `DOCUMENT`, JSON-LD `ItemList` injetado no `<head>` com cleanup no destroy, `siteUrl` adicionado ao environment |
 
+### EPIC-03 · Property Detail (STORY-00 a STORY-05)
+
+| Story | O que foi entregue |
+|---|---|
+| STORY-00 | `PropertyDetailComponent` com `ActivatedRoute` para leitura segura do slug (SSR-safe), signals `property`, `loading`, `notFound`, computed `location`, `previousFilters` via `PropertyService` |
+| STORY-01 | `PhotoGalleryComponent` — grid `[1fr_104px]` desktop/coluna mobile, `activePhoto` signal, badges "Venda/Aluguel" + categoria com backdrop-blur, thumbnails com `aria-pressed` e `loading="lazy"` |
+| STORY-02 | Seção de informações: pin de localização + `h1 font-serif text-5xl`, grid de specs com ícones SVG (`border-y border-border/60`), "Sobre este imóvel" e grid "Características" com check dourado |
+| STORY-03 | `ContactSidebarComponent` — `lg:sticky lg:top-28`, card `border-gold/30 shadow-[var(--shadow-card)]`: preço em `font-serif text-4xl text-gold`, "Ver na Imobiliária ↗" (condicional ao `externalUrl`), "Falar com o corretor" (WhatsApp com título do imóvel), CRECI |
+| STORY-04 | `ContactBottomBarComponent` — `fixed bottom-0 lg:hidden`, preço `font-serif text-xl text-gold` + botão WhatsApp gradient, `@utility pb-safe` com `env(safe-area-inset-bottom)` para iOS, `pb-24 lg:pb-0` no `<main>` |
+| STORY-05 | Breadcrumb "← Voltar aos imóveis" acima da galeria; `PropertyService.previousFilters` signal preserva os query params ativos ao sair da listagem, restaurados via `[queryParams]` no link de volta |
+
 ---
 
 ## Estrutura de pastas
@@ -172,7 +183,7 @@ src/
     │   │   ├── site-settings.model.ts       → SiteSettings
     │   │   └── index.ts                     → barrel export
     │   └── services/
-    │       ├── property.service.ts          → findAll(filters?), findBySlug()
+    │       ├── property.service.ts          → findAll(filters?), findBySlug(), previousFilters signal
     │       ├── category.service.ts          → findAll()
     │       ├── testimonial.service.ts       → findAll()
     │       └── site-settings.service.ts     → get(), signals: settings, whatsappUrl
@@ -208,7 +219,17 @@ src/
         │   │   ├── property-list.component.ts  → 7 signals, query param sync, canonical, JSON-LD
         │   │   └── property-list.component.html
         │   └── property-detail/
-        │       └── property-detail.component.ts → (a implementar — EPIC-03)
+        │       ├── property-detail.component.ts     → ActivatedRoute slug, previousFilters, canonical, JSON-LD RealEstateListing
+        │       ├── property-detail.component.html   → breadcrumb + galeria + grid 2 colunas + bottom bar mobile
+        │       ├── photo-gallery/
+        │       │   ├── photo-gallery.component.ts   → activePhoto signal, thumbnailClass computed
+        │       │   └── photo-gallery.component.html → grid [1fr_104px], badges cover/category, thumbnails ARIA
+        │       ├── contact-sidebar/
+        │       │   ├── contact-sidebar.component.ts → priceLabel, isRent, whatsappUrl computed
+        │       │   └── contact-sidebar.component.html → lg:sticky card: preço, Ver na Imobiliária, WhatsApp, CRECI
+        │       └── contact-bottom-bar/
+        │           ├── contact-bottom-bar.component.ts  → isRent, whatsappUrl computed
+        │           └── contact-bottom-bar.component.html → fixed bottom mobile: preço gold + botão WhatsApp gradient
         └── not-found/
             └── not-found.component.ts       → 404 com robots: noindex
 ```
