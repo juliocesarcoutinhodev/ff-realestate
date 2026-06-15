@@ -1,19 +1,17 @@
 <main class="min-h-screen pt-24 pb-20">
 
   <!-- Page Header -->
-  <section class="border-b border-border pb-10">
+  <section class="pt-40 pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <p class="font-sans text-gold text-sm tracking-widest uppercase mb-3">Portfólio</p>
-      <h1 class="font-serif text-5xl md:text-6xl text-foreground mb-4">Imóveis</h1>
+      <div class="flex items-center gap-4 mb-5" aria-hidden="true">
+        <span class="block h-px w-10 bg-gold"></span>
+        <span class="font-sans text-xs text-gold uppercase tracking-[0.2em]">Portfólio</span>
+      </div>
+      <h1 class="font-serif text-5xl md:text-6xl text-foreground mb-4">
+        Imóveis disponíveis
+      </h1>
       <p class="font-sans text-muted text-base">
-        @if (loading()) {
-          Buscando imóveis...
-        } @else {
-          {{ totalElements() }} imóve{{ totalElements() === 1 ? 'l encontrado' : 'is encontrados' }}
-          @if (selectedDealType() || selectedCategorySlug()) {
-            com os filtros selecionados
-          }
-        }
+        Explore nossa seleção de imóveis para compra e locação.
       </p>
     </div>
   </section>
@@ -79,16 +77,16 @@
 
       <!-- Load More -->
       @if (currentPage() + 1 < totalPages()) {
-        <div class="flex justify-center mt-16">
+        <div class="flex flex-col items-center gap-4 mt-16">
           <button
             type="button"
-            class="font-sans text-sm font-medium text-gold border border-gold/60 px-10 py-3.5 rounded-sm transition-all duration-200 hover:bg-gold hover:text-gold-foreground disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-3"
+            class="border border-gold/60 text-gold hover:bg-gold hover:text-gold-foreground px-8 py-4 text-xs uppercase tracking-widest transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-3"
             [disabled]="loadingMore()"
             (click)="loadMore()"
           >
             @if (loadingMore()) {
               <span
-                class="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin"
+                class="w-3.5 h-3.5 border-2 border-gold border-t-transparent rounded-full animate-spin"
                 aria-hidden="true"
               ></span>
               Carregando...
@@ -96,6 +94,9 @@
               Carregar mais imóveis
             }
           </button>
+          <p class="font-sans text-xs text-muted">
+            Exibindo {{ properties().length }} de {{ totalElements() }} imóveis
+          </p>
         </div>
       }
     }

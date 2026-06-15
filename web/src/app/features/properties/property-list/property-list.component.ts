@@ -7,10 +7,13 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+
+import { environment } from '../../../../environments/environment';
 
 import { Category } from '../../../core/models/category.model';
 import { Property, PropertyFilterSelection } from '../../../core/models/property.model';
@@ -26,6 +29,7 @@ import { PropertyCardComponent } from '../../../shared/components/property-card/
   templateUrl: './property-list.component.html',
 })
 export default class PropertyListComponent implements OnInit {
+  private readonly document = inject(DOCUMENT);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly route = inject(ActivatedRoute);
@@ -135,5 +139,37 @@ export default class PropertyListComponent implements OnInit {
       name: 'description',
       content: 'Portfólio de imóveis à venda e para locação com Fabrício Faceroli Corretor.',
     });
+
+    this.addCanonical();
+    this.addJsonLd();
+
+    this.destroyRef.onDestroy(() => {
+      this.document.querySelector('link[rel="canonical"]')?.remove();
+      this.document.getElementById('property-list-ld')?.remove();
+    });
+  }
+
+  private addCanonical(): void {
+    const canonicalUrl = `${environment.siteUrl}/properties`;
+    let link = this.document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!link) {
+      link = this.document.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      this.document.head.appendChild(link);
+    }
+    link.setAttribute('href', canonicalUrl);
+  }
+
+  private addJsonLd(): void {
+    this.document.getElementById('property-list-ld')?.remove();
+    const script = this.document.createElement('script');
+    script.id = 'property-list-ld';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': 'Imóveis Fabrício Faceroli',
+    });
+    this.document.head.appendChild(script);
   }
 }
