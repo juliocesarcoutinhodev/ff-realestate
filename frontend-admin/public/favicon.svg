@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="160" fill="#0F1F1B"/>
+
+  <!-- Subtle inner border -->
+  <rect x="18" y="18" width="476" height="476" rx="144" fill="none" stroke="#C9A84C" stroke-width="4" opacity="0.25"/>
+
+  <!-- Gold accent line -->
+  <rect x="156" y="362" width="200" height="3" rx="1.5" fill="#C9A84C" opacity="0.55"/>
+
+  <!-- FF letters -->
+  <text
+    x="256"
+    y="350"
+    font-family="Liberation Serif, Georgia, 'Times New Roman', serif"
+    font-size="232"
+    font-weight="700"
+    fill="#C9A84C"
+    text-anchor="middle"
+    dominant-baseline="alphabetic"
+    letter-spacing="-6"
+  >FF</text>
+</svg>
