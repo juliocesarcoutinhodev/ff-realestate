@@ -30,6 +30,12 @@ export interface PropertyPhoto {
   cover: boolean;
 }
 
+export interface PropertyFilterSelection {
+  dealType: 'SALE' | 'RENT' | null;
+  categorySlug: string | null;
+  city: string | null;
+}
+
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;

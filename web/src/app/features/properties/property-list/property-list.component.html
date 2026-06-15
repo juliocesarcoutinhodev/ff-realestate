@@ -1,0 +1,104 @@
+<main class="min-h-screen pt-24 pb-20">
+
+  <!-- Page Header -->
+  <section class="border-b border-border pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="font-sans text-gold text-sm tracking-widest uppercase mb-3">Portfólio</p>
+      <h1 class="font-serif text-5xl md:text-6xl text-foreground mb-4">Imóveis</h1>
+      <p class="font-sans text-muted text-base">
+        @if (loading()) {
+          Buscando imóveis...
+        } @else {
+          {{ totalElements() }} imóve{{ totalElements() === 1 ? 'l encontrado' : 'is encontrados' }}
+          @if (selectedDealType() || selectedCategorySlug()) {
+            com os filtros selecionados
+          }
+        }
+      </p>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <app-filter-bar
+    [categories]="categories()"
+    [cities]="cities()"
+    [totalElements]="totalElements()"
+    (filtersChanged)="onFiltersChanged($event)"
+  />
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+
+    <!-- Loading Skeleton -->
+    @if (loading()) {
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+        aria-busy="true"
+        aria-label="Carregando imóveis"
+      >
+        @for (item of skeletonItems; track item) {
+          <div class="bg-surface rounded-sm aspect-[4/3] animate-pulse"></div>
+        }
+      </div>
+
+    <!-- Empty State -->
+    } @else if (properties().length === 0) {
+      <div class="flex flex-col items-center justify-center py-24 text-center">
+        <svg
+          class="w-16 h-16 text-border mb-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="1"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"
+          />
+        </svg>
+        <h2 class="font-serif text-3xl text-foreground mb-3">
+          Nenhum imóvel encontrado com esses filtros.
+        </h2>
+        <button
+          type="button"
+          class="font-sans text-sm font-medium text-gold border border-gold/60 px-8 py-3 rounded-sm transition-all duration-200 hover:bg-gold hover:text-gold-foreground"
+          (click)="onFiltersChanged({ dealType: null, categorySlug: null, city: null })"
+        >
+          Limpar filtros
+        </button>
+      </div>
+
+    <!-- Property Grid -->
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (property of properties(); track property.id) {
+          <app-property-card [property]="property" />
+        }
+      </div>
+
+      <!-- Load More -->
+      @if (currentPage() + 1 < totalPages()) {
+        <div class="flex justify-center mt-16">
+          <button
+            type="button"
+            class="font-sans text-sm font-medium text-gold border border-gold/60 px-10 py-3.5 rounded-sm transition-all duration-200 hover:bg-gold hover:text-gold-foreground disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-3"
+            [disabled]="loadingMore()"
+            (click)="loadMore()"
+          >
+            @if (loadingMore()) {
+              <span
+                class="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin"
+                aria-hidden="true"
+              ></span>
+              Carregando...
+            } @else {
+              Carregar mais imóveis
+            }
+          </button>
+        </div>
+      }
+    }
+
+  </div>
+</main>
