@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { Category } from '../../../core/models/category.model';
 import { PropertyFilterSelection } from '../../../core/models/property.model';
@@ -28,7 +28,7 @@ interface DealTypeOption {
 })
 export class FilterBarComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} });
+  private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Params });
 
   readonly categories = input<Category[]>([]);
   readonly cities = input<string[]>([]);

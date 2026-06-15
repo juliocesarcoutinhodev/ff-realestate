@@ -4,12 +4,11 @@ import {
   computed,
   DestroyRef,
   inject,
-  input,
   OnInit,
   signal,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PhotoGalleryComponent } from './photo-gallery/photo-gallery.component';
 import { ContactSidebarComponent } from './contact-sidebar/contact-sidebar.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,6 +28,7 @@ import { environment } from '../../../../environments/environment';
 })
 export default class PropertyDetailComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
+  private readonly route = inject(ActivatedRoute);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly propertyService = inject(PropertyService);
@@ -36,8 +36,6 @@ export default class PropertyDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly settings = this.siteSettingsService.settings;
-
-  readonly slug = input<string>('');
 
   readonly property = signal<Property | null>(null);
   readonly loading = signal(true);
@@ -54,7 +52,7 @@ export default class PropertyDetailComponent implements OnInit {
       this.siteSettingsService.get().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
 
-    const slug = this.slug();
+    const slug = this.route.snapshot.params['slug'] as string;
     if (!slug) {
       this.loading.set(false);
       this.notFound.set(true);
