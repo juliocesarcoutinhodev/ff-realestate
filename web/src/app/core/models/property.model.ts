@@ -21,6 +21,7 @@ export interface Property {
   category?: { id: string; name: string; slug: string };
   coverPhoto?: string;
   photos?: PropertyPhoto[];
+  features?: string[];
 }
 
 export interface PropertyPhoto {
